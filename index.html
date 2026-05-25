@@ -366,6 +366,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   padding: 1.5rem;
   font-size: 0.85rem;
 }
+.export-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.export-row .btn { width: auto; flex: 1; }
 .reset-btn {
   background: none;
   border: none;
@@ -473,11 +479,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     </div>
     <div class="card-body collapsed-body" id="histBody">
       <div id="histList"></div>
+      <div class="export-row">
+        <button class="btn small" id="exportBtn">↓ Backup exportieren</button>
+        <button class="btn small" id="importTrigger">↑ Backup importieren</button>
+        <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
       <button class="reset-btn" id="resetBtn">Alle Daten löschen</button>
     </div>
   </div>
 
-  <div class="footer">Built with 🧡 by BitUcation · Lokale Speicherung · v1.0</div>
+  <div class="footer">Built with 🧡 by BitUcation · Lokale Speicherung · v1.1</div>
 </div>
 
 <script>
@@ -546,8 +557,6 @@ function getStage() {
 
 function render() {
   const stage = getStage();
-  
-  // Header
   document.getElementById('stageNum').textContent = state.currentStage;
   document.getElementById('stageName').textContent = stage.name;
   document.getElementById('stageShort').textContent = stage.short;
@@ -555,13 +564,11 @@ function render() {
   document.getElementById('stageTip').textContent = stage.tip;
   document.getElementById('targetHold').textContent = stage.targetHold + 's';
   document.getElementById('targetSets').textContent = stage.targetSets;
-  
-  // Best hold for current stage
+
   const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
   const bestHold = stageSessions.reduce((max, s) => Math.max(max, ...s.sets), 0);
   document.getElementById('bestHold').textContent = bestHold + 's';
-  
-  // Step row
+
   const stepRow = document.getElementById('stepRow');
   stepRow.innerHTML = '';
   STAGES.forEach(s => {
@@ -578,8 +585,7 @@ function render() {
     };
     stepRow.appendChild(div);
   });
-  
-  // Sets grid
+
   const setsGrid = document.getElementById('setsGrid');
   setsGrid.innerHTML = '';
   state.todaySets.forEach((val, idx) => {
@@ -588,8 +594,8 @@ function render() {
     box.innerHTML = `
       <div class="set-label">Set ${idx + 1}</div>
       <div class="set-input-wrap">
-        <input type="number" min="0" max="99" inputmode="numeric" 
-               value="${val || ''}" placeholder="0" 
+        <input type="number" min="0" max="99" inputmode="numeric"
+               value="${val || ''}" placeholder="0"
                class="set-input ${val >= stage.targetHold && val > 0 ? 'valid' : ''}"
                data-idx="${idx}">
         <span class="set-unit">s</span>
@@ -607,10 +613,9 @@ function render() {
       updateProgress();
     });
   });
-  
+
   updateProgress();
-  
-  // Assistance
+
   const assistList = document.getElementById('assistList');
   assistList.innerHTML = '';
   ASSISTANCE.forEach(a => {
@@ -629,14 +634,12 @@ function render() {
     };
     assistList.appendChild(row);
   });
-  document.getElementById('assistDone').textContent = 
+  document.getElementById('assistDone').textContent =
     Object.values(state.assistance).filter(Boolean).length;
-  
-  // Nav buttons
+
   document.getElementById('prevBtn').disabled = state.currentStage === 1;
   document.getElementById('nextBtn').disabled = state.currentStage === 5;
-  
-  // History
+
   renderHistory();
 }
 
@@ -644,14 +647,14 @@ function updateProgress() {
   const stage = getStage();
   const total = state.todaySets.reduce((a, b) => a + (parseInt(b) || 0), 0);
   const valid = state.todaySets.filter(s => parseInt(s) >= stage.targetHold).length;
-  
+
   document.getElementById('totalSec').textContent = total;
   document.getElementById('validCount').textContent = valid;
   document.getElementById('validTarget').textContent = stage.targetSets;
-  
+
   const pct = Math.min(100, (valid / stage.targetSets) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
-  
+
   const readyBadge = document.getElementById('readyBadge');
   const nextBtn = document.getElementById('nextBtn');
   if (valid >= stage.targetSets && state.currentStage < 5) {
@@ -661,10 +664,9 @@ function updateProgress() {
     readyBadge.style.display = 'none';
     nextBtn.classList.remove('primary');
   }
-  
+
   document.getElementById('saveBtn').disabled = total === 0;
-  
-  // Update valid styling on inputs
+
   document.querySelectorAll('.set-input').forEach(input => {
     const idx = parseInt(input.dataset.idx);
     const v = state.todaySets[idx];
@@ -742,6 +744,46 @@ document.getElementById('histHeader').onclick = () => {
     body.classList.add('collapsed-body');
     toggle.textContent = '+';
   }
+};
+
+document.getElementById('exportBtn').onclick = () => {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `human-flag-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('importTrigger').onclick = () => {
+  document.getElementById('importFile').click();
+};
+
+document.getElementById('importFile').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.sessions || !Array.isArray(parsed.sessions)) {
+        alert('Ungültige Backup-Datei.');
+        return;
+      }
+      if (confirm(`${parsed.sessions.length} Sessions importieren? Aktuelle Daten werden überschrieben.`)) {
+        state = { ...state, ...parsed };
+        save();
+        render();
+      }
+    } catch (err) {
+      alert('Fehler beim Lesen der Datei.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
 };
 
 document.getElementById('resetBtn').onclick = () => {
