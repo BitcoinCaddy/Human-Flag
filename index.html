@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="icon" href="icon.svg">
-<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏴</text></svg>">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Human%20Flag%20Tracker%22,%22short_name%22:%22Human%20Flag%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f2f2f2%22,%22theme_color%22:%22%23ED7807%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'><text%20y='.9em'%20font-size='90'>🏴</text></svg>%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22}]}">
 <style>
 :root {
   --surface: #ffffff;
@@ -334,6 +334,95 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--muted);
   font-weight: 700;
 }
+.info-btn {
+  border-radius: 50%;
+  border: 1px solid var(--border-focus);
+  background: none;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  font-family: var(--mono);
+  padding: 2px 6px;
+  line-height: 1;
+}
+.info-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 1.4rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: fadeUp 0.25s ease both;
+}
+.modal-title {
+  font-family: var(--sans);
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+.modal-sub {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.8rem;
+}
+.modal-desc {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.modal-video-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+.modal-video-link:hover { border-color: var(--orange); color: var(--orange); }
+.modal-video-icon { font-size: 1.1rem; }
+.modal-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  width: 100%;
+}
 
 .nav-row { display: flex; gap: 0.6rem; }
 
@@ -420,6 +509,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
       <div class="stage-name" id="stageName"></div>
       <div class="stage-short" id="stageShort"></div>
       <div class="stage-desc" id="stageDesc"></div>
+      <button class="info-btn" id="stageInfoBtn" data-key="s1" style="margin-bottom:0.8rem">? Übung erklären</button>
       <div class="tip-box">
         <span class="tip-label">Technik</span>
         <span class="tip-text" id="stageTip"></span>
@@ -480,15 +570,29 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     <div class="card-body collapsed-body" id="histBody">
       <div id="histList"></div>
       <div class="export-row">
-        <button class="btn small" id="exportBtn">↓ Backup exportieren</button>
-        <button class="btn small" id="importTrigger">↑ Backup importieren</button>
+        <button class="btn small" id="exportBtn">&#8595; Daten exportieren</button>
+        <button class="btn small" id="importTrigger">&#8593; Daten importieren</button>
         <input type="file" id="importFile" accept=".json" style="display:none">
       </div>
       <button class="reset-btn" id="resetBtn">Alle Daten löschen</button>
     </div>
   </div>
 
-  <div class="footer">Built with 🧡 by BitUcation · Lokale Speicherung · v1.1</div>
+  <div class="footer">Built with 🧡 by BitUcation · Lokale Speicherung · v1.2</div>
+</div>
+
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <a class="modal-video-link" id="modalLink" href="#" target="_blank" rel="noopener">
+      <span class="modal-video-icon">▶</span>
+      <span>Tutorial auf YouTube ansehen</span>
+    </a>
+    <button class="modal-close" id="modalClose">Schließen</button>
+  </div>
 </div>
 
 <script>
@@ -557,18 +661,23 @@ function getStage() {
 
 function render() {
   const stage = getStage();
+  
+  // Header
   document.getElementById('stageNum').textContent = state.currentStage;
   document.getElementById('stageName').textContent = stage.name;
   document.getElementById('stageShort').textContent = stage.short;
   document.getElementById('stageDesc').textContent = stage.desc;
+  document.getElementById('stageInfoBtn').dataset.key = 's' + state.currentStage;
   document.getElementById('stageTip').textContent = stage.tip;
   document.getElementById('targetHold').textContent = stage.targetHold + 's';
   document.getElementById('targetSets').textContent = stage.targetSets;
-
+  
+  // Best hold for current stage
   const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
   const bestHold = stageSessions.reduce((max, s) => Math.max(max, ...s.sets), 0);
   document.getElementById('bestHold').textContent = bestHold + 's';
-
+  
+  // Step row
   const stepRow = document.getElementById('stepRow');
   stepRow.innerHTML = '';
   STAGES.forEach(s => {
@@ -585,7 +694,8 @@ function render() {
     };
     stepRow.appendChild(div);
   });
-
+  
+  // Sets grid
   const setsGrid = document.getElementById('setsGrid');
   setsGrid.innerHTML = '';
   state.todaySets.forEach((val, idx) => {
@@ -594,8 +704,8 @@ function render() {
     box.innerHTML = `
       <div class="set-label">Set ${idx + 1}</div>
       <div class="set-input-wrap">
-        <input type="number" min="0" max="99" inputmode="numeric"
-               value="${val || ''}" placeholder="0"
+        <input type="number" min="0" max="99" inputmode="numeric" 
+               value="${val || ''}" placeholder="0" 
                class="set-input ${val >= stage.targetHold && val > 0 ? 'valid' : ''}"
                data-idx="${idx}">
         <span class="set-unit">s</span>
@@ -613,9 +723,10 @@ function render() {
       updateProgress();
     });
   });
-
+  
   updateProgress();
-
+  
+  // Assistance
   const assistList = document.getElementById('assistList');
   assistList.innerHTML = '';
   ASSISTANCE.forEach(a => {
@@ -626,7 +737,12 @@ function render() {
       <div class="checkbox">${state.assistance[a.id] ? '<span class="checkmark">✓</span>' : ''}</div>
       <div class="assist-name">${a.name}</div>
       <div class="assist-target">${a.target}</div>
+      <button class="info-btn" data-key="${a.id}">?</button>
     `;
+    row.querySelector('.info-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      openModal(e.target.dataset.key);
+    });
     row.onclick = () => {
       state.assistance[a.id] = !state.assistance[a.id];
       save();
@@ -634,12 +750,14 @@ function render() {
     };
     assistList.appendChild(row);
   });
-  document.getElementById('assistDone').textContent =
+  document.getElementById('assistDone').textContent = 
     Object.values(state.assistance).filter(Boolean).length;
-
+  
+  // Nav buttons
   document.getElementById('prevBtn').disabled = state.currentStage === 1;
   document.getElementById('nextBtn').disabled = state.currentStage === 5;
-
+  
+  // History
   renderHistory();
 }
 
@@ -647,14 +765,14 @@ function updateProgress() {
   const stage = getStage();
   const total = state.todaySets.reduce((a, b) => a + (parseInt(b) || 0), 0);
   const valid = state.todaySets.filter(s => parseInt(s) >= stage.targetHold).length;
-
+  
   document.getElementById('totalSec').textContent = total;
   document.getElementById('validCount').textContent = valid;
   document.getElementById('validTarget').textContent = stage.targetSets;
-
+  
   const pct = Math.min(100, (valid / stage.targetSets) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
-
+  
   const readyBadge = document.getElementById('readyBadge');
   const nextBtn = document.getElementById('nextBtn');
   if (valid >= stage.targetSets && state.currentStage < 5) {
@@ -664,9 +782,10 @@ function updateProgress() {
     readyBadge.style.display = 'none';
     nextBtn.classList.remove('primary');
   }
-
+  
   document.getElementById('saveBtn').disabled = total === 0;
-
+  
+  // Update valid styling on inputs
   document.querySelectorAll('.set-input').forEach(input => {
     const idx = parseInt(input.dataset.idx);
     const v = state.todaySets[idx];
@@ -797,6 +916,89 @@ document.getElementById('resetBtn').onclick = () => {
     };
     render();
   }
+};
+
+
+const INFO = {
+  s1: {
+    title: 'Vertical Flag',
+    sub: 'Stufe 1 — Press Grip Hold',
+    desc: 'Stell dich seitlich an eine vertikale Stange und greife sie mit beiden Händen übereinander. Spring hoch, sodass dein Körper senkrecht nach oben zeigt. Der obere Arm zieht die Stange aktiv nach unten zu dir, der untere Arm drückt sie von dir weg — wie ein Lenkrad. Schulter des unteren Arms aktiv aus dem Ohr schieben. Ziel: 3 × 15 Sekunden halten.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  s2: {
+    title: 'Tuck Flag',
+    sub: 'Stufe 2 — Knie an Brust',
+    desc: 'Aus der Vertical Flag die Knie eng an die Brust ziehen und den Körper langsam zur Horizontalen kippen. Je mehr du kippst, desto schwerer wird es. Druck-Zug-Mechanismus bleibt gleich. Sauberkeit vor Haltezeit. Ziel: 3 × 15 Sekunden.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  s3: {
+    title: 'Advanced Tuck',
+    sub: 'Stufe 3 — Oberschenkel parallel',
+    desc: 'Oberschenkel parallel zum Boden strecken, Unterschenkel hängen senkrecht runter. Der Hebel wird deutlich länger als beim Tuck. Rumpf, Po und Beine komplett angespannt halten. Das ist oft die härteste Übergangsstufe. Ziel: 3 × 10 Sekunden.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  s4: {
+    title: 'Straddle Flag',
+    sub: 'Stufe 4 — Beine gegrätscht',
+    desc: 'Beide Beine gestreckt, so weit wie möglich gegrätscht. Das Spreizen verkürzt den effektiven Hebel leicht und ist die klassische Zwischenstufe. Beine aktiv auseinanderpressen, nicht nur hängen lassen. Atmen nicht vergessen. Ziel: 3 × 8 Sekunden.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  s5: {
+    title: 'Full Human Flag',
+    sub: 'Stufe 5 — Endform',
+    desc: 'Beide Beine gestreckt und zusammen, Körper komplett horizontal. Maximaler Hebel, jede Schwäche fliegt sofort auf. Erst 2 Sekunden anstreben, dann 5, dann 10. Filmen hilft, weil das Gefühl oft trügt. Ziel: 3 × 10 Sekunden.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  sp: {
+    title: 'Side Plank + Beinheben',
+    sub: 'Assistance — Laterale Rumpfkette',
+    desc: 'Seitstützposition auf dem Unterarm oder der Hand. Das obere Bein langsam heben und kontrolliert senken. Hüfte nicht absinken lassen. Beide Seiten gleich trainieren — Asymmetrie ist bei der Flag ein großes Problem. Ziel: 3 × 10 Wdh. pro Seite.',
+    video: 'https://www.youtube.com/watch?v=PAD7sMmIgts'
+  },
+  pu: {
+    title: 'One-Arm Negativklimmzug',
+    sub: 'Assistance — Latissimus & Bizeps',
+    desc: 'Mit beiden Armen hochziehen, dann einen Arm loslassen und dich einarmig so langsam wie möglich (4–6 Sekunden) wieder runterlassen. Baut sehr schnell Kraft auf, ohne dass du den konzentrischen Teil schon schaffst. Ziel: 3 × 5 pro Seite.',
+    video: 'https://www.youtube.com/shorts/vcYjMwZ1QD4'
+  },
+  pp: {
+    title: 'Pike Push-ups',
+    sub: 'Assistance — Schultern & Druckkraft',
+    desc: 'Hüfte hoch, Körper bildet ein umgekehrtes V. Ellbogen beugen bis der Kopf fast den Boden berührt, dann wieder hochdrücken. Trainiert die Druckbewegung, die der untere Arm bei der Flag braucht. Handstand-Hold an der Wand ersetzt das auf höherem Niveau. Ziel: 3 × 30 Sekunden oder 3 × 10 Wdh.',
+    video: 'https://www.youtube.com/watch?v=paCOGgmLCA0'
+  },
+  ww: {
+    title: 'Windshield Wipers',
+    sub: 'Assistance — Obliques & Rumpfrotation',
+    desc: 'An der Klimmzugstange hängen, Beine auf 90 Grad heben, dann wie ein Scheibenwischer langsam von links nach rechts schwingen. Kontrollierte Bewegung, kein Schwung. Für Anfänger: erst mit gebeugten Knien starten. Ziel: 3 × 8 pro Seite.',
+    video: 'https://www.youtube.com/watch?v=ygwy2b2marI'
+  },
+  wm: {
+    title: 'Kettlebell Windmill',
+    sub: 'Assistance — Laterale Stabilität',
+    desc: 'Kettlebell in einer Hand über den Kopf strecken, Füße hüftbreit und 45 Grad zur Seite. Langsam zur Seite beugen, die freie Hand gleitet am Bein entlang Richtung Boden. Blick bleibt immer auf die Kettlebell. Nur so tief wie die Form es erlaubt. Leichtes Gewicht, saubere Ausführung. Ziel: 3 × 8 pro Seite.',
+    video: 'https://www.youtube.com/watch?v=1N1Qs9FO4GU'
+  }
+};
+
+function openModal(key) {
+  const d = INFO[key];
+  if (!d) return;
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalSub').textContent = d.sub;
+  document.getElementById('modalDesc').textContent = d.desc;
+  document.getElementById('modalLink').href = d.video;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+document.getElementById('modalClose').onclick = () =>
+  document.getElementById('modalOverlay').classList.remove('open');
+document.getElementById('stageInfoBtn').onclick = () =>
+  openModal(document.getElementById('stageInfoBtn').dataset.key);
+document.getElementById('modalOverlay').onclick = (e) => {
+  if (e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('open');
 };
 
 load();
