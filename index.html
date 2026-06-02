@@ -8,12 +8,12 @@
 <meta name="apple-mobile-web-app-title" content="Human Flag">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#f2f2f2">
-<title>Human Flag Tracker</title>
+<title>Human Flag Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏴</text></svg>">
-<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Human%20Flag%20Tracker%22,%22short_name%22:%22Human%20Flag%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f2f2f2%22,%22theme_color%22:%22%23ED7807%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'><text%20y='.9em'%20font-size='90'>🏴</text></svg>%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22}]}">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
 <style>
 :root {
   --surface: #ffffff;
@@ -23,6 +23,10 @@
   --orange: #ED7807;
   --orange-dim: rgba(237, 120, 7, 0.10);
   --orange-glow: rgba(237, 120, 7, 0.20);
+  --red: #d64545;
+  --red-dim: rgba(214, 69, 69, 0.10);
+  --green: #2d8a3e;
+  --green-dim: rgba(45, 138, 62, 0.10);
   --text: #1a1a1a;
   --muted: #888888;
   --mono: 'Space Mono', monospace;
@@ -49,6 +53,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
 .container {
   width: 100%;
@@ -64,6 +72,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .delay-3 { animation-delay: 0.15s; }
 .delay-4 { animation-delay: 0.2s; }
 .delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.3s; }
 
 .eyebrow {
   font-family: var(--mono);
@@ -115,37 +124,73 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 .card-body { padding: 1.1rem 1.4rem; }
 
-.step-row {
+.alert {
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
+  gap: 0.6rem;
+  align-items: flex-start;
 }
-.step {
-  width: 38px;
-  height: 38px;
+.alert-orange { background: var(--orange-dim); border: 1px solid var(--orange); color: var(--text); }
+.alert-red { background: var(--red-dim); border: 1px solid var(--red); color: var(--text); }
+.alert-green { background: var(--green-dim); border: 1px solid var(--green); color: var(--text); }
+.alert-icon { font-size: 1rem; flex-shrink: 0; }
+.alert-content { flex: 1; }
+.alert-title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.2rem;
+  font-family: var(--mono);
+}
+
+.stage-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+.stage-arrow {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.stage-arrow:hover:not(:disabled) { border-color: var(--orange); color: var(--orange); }
+.stage-indicator {
+  flex: 1;
+  text-align: center;
   font-family: var(--mono);
   font-weight: 700;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
-.step.active {
-  background: var(--orange-dim);
-  border-color: var(--orange);
+.stage-indicator .current {
   color: var(--orange);
-  box-shadow: 0 0 0 3px var(--orange-glow);
+  font-size: 1.4rem;
 }
-.step.done {
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--text);
+.stage-indicator .total { color: var(--muted); }
+
+.phase-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
 }
 
 .stage-name {
@@ -184,7 +229,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 .tip-text { font-size: 0.85rem; line-height: 1.4; }
 
-.target-row { display: flex; gap: 0.6rem; }
+.target-row { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
 .target-box {
   flex: 1;
   background: var(--surface2);
@@ -196,7 +241,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .target-val {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 0.15rem;
 }
 .target-label {
@@ -205,6 +250,41 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--muted);
+}
+
+.side-toggle {
+  display: flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 1rem;
+}
+.side-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.side-btn.active {
+  background: var(--surface);
+  color: var(--orange);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.side-btn .count {
+  display: inline-block;
+  margin-left: 0.3rem;
+  font-size: 0.65rem;
+  opacity: 0.6;
 }
 
 .sets-grid {
@@ -240,10 +320,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .set-input {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1rem;
   border: none;
   background: transparent;
-  width: 2.2rem;
+  width: 2rem;
   text-align: center;
   outline: none;
   color: var(--text);
@@ -251,7 +331,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .set-input.valid { color: var(--orange); }
 .set-unit {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--muted);
 }
 
@@ -304,16 +384,24 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.6rem 0;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: opacity 0.2s;
 }
 .assist-row:last-child { border-bottom: none; }
 .assist-row.done { opacity: 0.5; }
+.assist-row.recommended {
+  padding-left: 0.5rem;
+  margin: 0 -0.5rem;
+  background: var(--orange-dim);
+  border-radius: 8px;
+  border-bottom: none;
+  padding-right: 0.5rem;
+}
 .checkbox {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 6px;
   border: 1px solid var(--border-focus);
   display: flex;
@@ -326,13 +414,22 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   border-color: var(--orange);
   background: var(--orange-dim);
 }
-.checkmark { color: var(--orange); font-weight: 700; font-size: 0.85rem; }
-.assist-name { flex: 1; font-size: 0.88rem; }
+.checkmark { color: var(--orange); font-weight: 700; font-size: 0.9rem; }
+.assist-meta { flex: 1; min-width: 0; }
+.assist-name { font-size: 0.88rem; font-weight: 600; }
+.assist-block {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 .assist-target {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--muted);
   font-weight: 700;
+  white-space: nowrap;
 }
 .info-btn {
   border-radius: 50%;
@@ -342,16 +439,27 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
+  padding: 3px 7px;
+  line-height: 1;
   transition: all 0.2s;
   font-family: var(--mono);
-  padding: 2px 6px;
-  line-height: 1;
 }
 .info-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+.rec-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  background: var(--orange);
+  color: white;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}
 
 .modal-overlay {
   display: none;
@@ -370,15 +478,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   padding: 1.4rem;
   width: 100%;
   max-width: 480px;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
   animation: fadeUp 0.25s ease both;
 }
 .modal-title {
   font-family: var(--sans);
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin-bottom: 0.2rem;
+  line-height: 1.2;
 }
 .modal-sub {
   font-family: var(--mono);
@@ -386,7 +495,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--orange);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 }
 .modal-desc {
   font-size: 0.88rem;
@@ -394,6 +503,23 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--text);
   margin-bottom: 1rem;
 }
+.modal-section {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.7rem;
+}
+.modal-section-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--orange);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.modal-section-text { font-size: 0.83rem; line-height: 1.4; }
 .modal-video-link {
   display: flex;
   align-items: center;
@@ -410,7 +536,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   transition: all 0.2s;
 }
 .modal-video-link:hover { border-color: var(--orange); color: var(--orange); }
-.modal-video-icon { font-size: 1.1rem; }
 .modal-close {
   background: none;
   border: 1px solid var(--border);
@@ -428,26 +553,34 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .hist-row {
   display: grid;
-  grid-template-columns: 50px 30px 1fr 50px;
-  gap: 0.5rem;
+  grid-template-columns: 45px 28px 1fr 38px;
+  gap: 0.4rem;
   align-items: center;
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--border);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 .hist-row:last-of-type { border-bottom: none; }
-.hist-date { font-family: var(--mono); color: var(--muted); }
+.hist-date { font-family: var(--mono); color: var(--muted); font-size: 0.7rem; }
 .hist-stage {
   font-family: var(--mono);
   font-weight: 700;
   color: var(--orange);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
 }
-.hist-sets { font-family: var(--mono); font-size: 0.75rem; }
+.hist-sets { font-family: var(--mono); font-size: 0.7rem; }
+.hist-side {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 .hist-total {
   font-family: var(--mono);
   font-weight: 700;
   text-align: right;
+  font-size: 0.7rem;
 }
 .empty {
   text-align: center;
@@ -482,11 +615,38 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .collapsed-body { display: none; }
 
+.symmetry-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 0.4rem 0;
+  background: var(--surface2);
+}
+.sym-left, .sym-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+.sym-left {
+  background: var(--orange-dim);
+  color: var(--orange);
+}
+.sym-right {
+  background: var(--orange);
+  color: white;
+}
+
 @media (max-width: 440px) {
   body { padding: 1rem 0.7rem 2rem; }
   .card-body { padding: 1rem 1rem; }
-  .step { width: 34px; height: 34px; font-size: 0.85rem; }
-  .set-input { font-size: 1rem; width: 1.9rem; }
+  .set-input { font-size: 0.95rem; width: 1.8rem; }
+  .stage-name { font-size: 1.25rem; }
 }
 </style>
 </head>
@@ -494,34 +654,44 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 <div class="container">
 
   <div class="fadeUp delay-0">
-    <div class="eyebrow">Calisthenics Skill Tracker</div>
+    <div class="eyebrow">Calisthenics Skill Trainer · v2.0</div>
     <h1 class="headline">Human <span class="accent">Flag</span></h1>
-    <div class="sub">5-Stufen-Progression. Frequenz schlägt Intensität.</div>
+    <div class="sub">17-Stufen-Coaching nach 13 Calisthenics-Coaches.</div>
   </div>
+
+  <div id="alertsContainer"></div>
 
   <div class="card fadeUp delay-1">
     <div class="card-header">
       <span class="card-label">Aktuelle Stufe</span>
-      <span class="card-count"><span id="stageNum">1</span> / 5</span>
+      <span class="card-count" id="phaseCount"></span>
     </div>
     <div class="card-body">
-      <div class="step-row" id="stepRow"></div>
+      <div class="stage-nav">
+        <button class="stage-arrow" id="prevStageBtn">&#8249;</button>
+        <div class="stage-indicator">
+          <div><span class="current" id="stageNum">1</span><span class="total"> / 17</span></div>
+          <div class="phase-label" id="phaseLabel"></div>
+        </div>
+        <button class="stage-arrow" id="nextStageBtn">&#8250;</button>
+      </div>
+
       <div class="stage-name" id="stageName"></div>
       <div class="stage-short" id="stageShort"></div>
       <div class="stage-desc" id="stageDesc"></div>
-      <button class="info-btn" id="stageInfoBtn" data-key="s1" style="margin-bottom:0.8rem">? Übung erklären</button>
+      <button class="info-btn" id="stageInfoBtn" style="padding:0.4rem 0.8rem; border-radius:8px; margin-bottom:0.8rem">? Vollständige Erklärung</button>
       <div class="tip-box">
         <span class="tip-label">Technik</span>
         <span class="tip-text" id="stageTip"></span>
       </div>
       <div class="target-row">
         <div class="target-box">
-          <div class="target-val" id="targetHold">15s</div>
+          <div class="target-val" id="targetHold">10s</div>
           <div class="target-label">Ziel pro Set</div>
         </div>
         <div class="target-box">
           <div class="target-val" id="targetSets">3</div>
-          <div class="target-label">Sets benötigt</div>
+          <div class="target-label">Sets/Seite</div>
         </div>
         <div class="target-box">
           <div class="target-val" id="bestHold">0s</div>
@@ -531,35 +701,53 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     </div>
   </div>
 
-  <div class="card fadeUp delay-2">
+  <div class="card fadeUp delay-2" id="trainingCard">
     <div class="card-header">
       <span class="card-label">Heutige Session</span>
       <span class="card-count"><span id="totalSec">0</span>s gesamt</span>
     </div>
     <div class="card-body">
+      <div class="side-toggle" id="sideToggle">
+        <button class="side-btn active" data-side="left">Links <span class="count" id="leftCount">0/3</span></button>
+        <button class="side-btn" data-side="right">Rechts <span class="count" id="rightCount">0/3</span></button>
+      </div>
+
       <div class="sets-grid" id="setsGrid"></div>
+
       <div class="progress-line">
         <div class="progress-label">
-          <span><span id="validCount">0</span> / <span id="validTarget">3</span> valide Sets</span>
-          <span class="ready-badge" id="readyBadge" style="display:none">● Bereit für nächste Stufe</span>
+          <span><span id="validCount">0</span> / <span id="validTarget">3</span> valide Sets <span id="currentSideLabel">links</span></span>
+          <span class="ready-badge" id="readyBadge" style="display:none">● Beide Seiten erreicht</span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       </div>
-      <button class="btn" id="saveBtn" disabled>Session speichern</button>
+
+      <div id="symmetryDisplay" style="display:none">
+        <div class="progress-label" style="margin-bottom:0">
+          <span>L/R-Symmetrie</span>
+          <span id="symmetryStatus"></span>
+        </div>
+        <div class="symmetry-bar">
+          <div class="sym-left" id="symLeft">L 0s</div>
+          <div class="sym-right" id="symRight">R 0s</div>
+        </div>
+      </div>
+
+      <button class="btn" id="saveBtn" disabled style="margin-top:0.8rem">Session speichern</button>
     </div>
   </div>
 
   <div class="card fadeUp delay-3">
     <div class="card-header">
-      <span class="card-label">Assistance Work</span>
-      <span class="card-count"><span id="assistDone">0</span> / 5</span>
+      <span class="card-label">Assistance Work · Heute empfohlen</span>
+      <span class="card-count"><span id="assistDone">0</span> / <span id="assistTotal">5</span></span>
     </div>
     <div class="card-body" id="assistList"></div>
   </div>
 
   <div class="nav-row fadeUp delay-4">
-    <button class="btn small" id="prevBtn">← Stufe zurück</button>
-    <button class="btn small" id="nextBtn">Nächste Stufe →</button>
+    <button class="btn small" id="prevBtn">&#8592; Stufe zurück</button>
+    <button class="btn small" id="nextBtn">Nächste Stufe &#8594;</button>
   </div>
 
   <div class="card fadeUp delay-5">
@@ -578,17 +766,24 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     </div>
   </div>
 
-  <div class="footer">Built with 🧡 by BitUcation · Lokale Speicherung · v1.2</div>
+  <div class="footer">Built with 🧡 by BitUcation · 17 Stufen · v2.0</div>
 </div>
-
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-title" id="modalTitle"></div>
     <div class="modal-sub" id="modalSub"></div>
     <div class="modal-desc" id="modalDesc"></div>
-    <a class="modal-video-link" id="modalLink" href="#" target="_blank" rel="noopener">
-      <span class="modal-video-icon">▶</span>
+    <div class="modal-section" id="modalTechniqueWrap" style="display:none">
+      <span class="modal-section-label">Technik</span>
+      <div class="modal-section-text" id="modalTechnique"></div>
+    </div>
+    <div class="modal-section" id="modalMistakesWrap" style="display:none">
+      <span class="modal-section-label">Häufige Fehler</span>
+      <div class="modal-section-text" id="modalMistakes"></div>
+    </div>
+    <a class="modal-video-link" id="modalLink" href="#" target="_blank" rel="noopener" style="display:none">
+      <span>▶</span>
       <span>Tutorial auf YouTube ansehen</span>
     </a>
     <button class="modal-close" id="modalClose">Schließen</button>
@@ -596,44 +791,237 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 </div>
 
 <script>
+// ============================================================
+// 17-Stufen-Progression nach Coach-Synthese
+// ============================================================
 const STAGES = [
-  { id: 1, name: 'Vertical Flag', short: 'Press Grip Hold',
-    desc: 'Körper senkrecht an der Stange. Oberer Arm zieht, unterer Arm drückt aktiv weg.',
-    targetHold: 15, targetSets: 3,
-    tip: 'Schulter des unteren Arms aus dem Ohr drücken. Po anspannen.' },
-  { id: 2, name: 'Tuck Flag', short: 'Knie an Brust',
-    desc: 'Knie eng an die Brust ziehen, Körper kippt zur Horizontalen.',
-    targetHold: 15, targetSets: 3,
-    tip: 'Hier lernst du den Druck-Zug-Mechanismus. Sauberkeit vor Haltezeit.' },
-  { id: 3, name: 'Advanced Tuck', short: 'Oberschenkel parallel',
-    desc: 'Oberschenkel parallel zum Boden, Unterschenkel hängend.',
-    targetHold: 10, targetSets: 3,
-    tip: 'Hebel wird länger. Rumpf bleibt steif wie ein Brett.' },
-  { id: 4, name: 'Straddle Flag', short: 'Beine gegrätscht',
-    desc: 'Beide Beine gestreckt und gegrätscht, Körper horizontal.',
-    targetHold: 8, targetSets: 3,
-    tip: 'Atmen nicht vergessen. Beine aktiv weit auseinander pressen.' },
-  { id: 5, name: 'Full Human Flag', short: 'Endform',
-    desc: 'Beide Beine gestreckt und zusammen, Körper komplett horizontal.',
-    targetHold: 10, targetSets: 3,
-    tip: 'Erst 2 s, dann 5, dann 10. Filmen hilft, weil das Gefühl täuscht.' }
+  // PHASE 1: VORBEREITUNG (Stufe 1-2)
+  { id: 1, phase: 'Vorbereitung', name: 'Hängender Seitenzug', short: 'Hanging Side Pull',
+    desc: 'An der Stange hängen, Schulterblätter aktiv nach unten ziehen, Körper lateral zur Seite kippen (ca. 45°).',
+    targetHold: 15, targetSets: 3, perSide: true,
+    tip: 'Schulter der unteren Hand aktiv depressed halten. Erstes Gefühl für lateralen Push-Pull.',
+    technique: 'Beide Hände greifen über Kopf an die Stange. Linke Hand etwas höher, rechte etwas tiefer. Schulterblätter aktiv nach unten und zusammenziehen. Dann den Körper langsam zur Seite kippen, bis du etwa 45° geneigt bist. Halten, kontrolliert zurück.',
+    mistakes: 'Schultern hochgezogen (klassischer Fehler). Körper nicht stabil, sondern wackelig. Kein bewusster Pull mit der oberen Hand.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 2, phase: 'Vorbereitung', name: 'Foot-Assisted Vertical', short: 'Vertical mit Fuß-Hilfe',
+    desc: 'An vertikaler Stange stehen, Hände in Flag-Griff, Füße bleiben am Boden. Druck-Zug-Mechanismus üben.',
+    targetHold: 30, targetSets: 3, perSide: true,
+    tip: 'Bottom-Arm drückt aktiv weg, Top-Arm zieht zu sich. Wie ein Lenkrad. Füße helfen nur leicht.',
+    technique: 'Steh seitlich an einer vertikalen Stange. Untere Hand auf Hüfthöhe (drückt), obere Hand über Kopf (zieht). Verlagere Gewicht in die Hände, Füße entlasten den Boden nur leicht. Spüre die Kraftrichtungen.',
+    mistakes: 'Ellbogen gebeugt (sehr häufig!). Hände nicht in einer vertikalen Linie. Bottom-Arm passiv.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  // PHASE 2: VERTIKAL (Stufe 3-5)
+  { id: 3, phase: 'Vertikal', name: 'Wall-Walk in Vertikale', short: 'Inverted Support',
+    desc: 'An Sprossenwand seitlich hochgehen, Hüfte über Schultern bringen, Körper vertikal.',
+    targetHold: 15, targetSets: 3, perSide: true,
+    tip: 'Calisthenics Family: "Position muss bequem genug sein, um dabei reden zu können."',
+    technique: 'Greife eine Sprossenwand seitlich. Gehe mit den Füßen Sprosse für Sprosse hoch, bis dein Körper vertikal ist. Hüfte über den Schultern. Halte die Position frei, sobald möglich.',
+    mistakes: 'Hüfte sackt ab. Schulter der unteren Hand kollabiert. Atmung gepresst.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 4, phase: 'Vertikal', name: 'Chamber Hold', short: 'Vertical Flag Down',
+    desc: 'Sprung in Position: Hüfte über Schultern, Knie eng an der Brust. Körper vertikal mit getuckten Beinen.',
+    targetHold: 10, targetSets: 3, perSide: true,
+    tip: 'Al Kavadlo: "Hüfte bleibt knapp über Schulterhöhe, Knie zur Brust." Erster echter Skill.',
+    technique: 'Springe seitlich an die Stange, ziehe die Knie sofort an die Brust und kontrolliere die Vertikale. Hüfte über den Schultern, kompakte Tuck-Position. 10 Sekunden = Schwelle für nächste Stufe.',
+    mistakes: 'Hüfte zu tief. Knie nicht eng genug. Asymmetrischer Griff.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 5, phase: 'Vertikal', name: 'Vertical Flag Hold', short: 'Crooked Handstand',
+    desc: 'Aus Chamber die Beine nach oben strecken. Fast wie ein schräger Handstand.',
+    targetHold: 10, targetSets: 3, perSide: true,
+    tip: 'Kavadlo: "Näher an der Vertikale als an der Horizontale, fast ein schräger Handstand."',
+    technique: 'Aus der Chamber Hold die Beine nach oben strecken. Körper bildet eine fast vertikale Linie. Alles aktiv anspannen: Po, Beine, Core. Schultern stabil halten.',
+    mistakes: 'Beine knicken ein. Hohlkreuz. Schulter der unteren Hand sackt.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  // PHASE 3: TUCK (Stufe 6-9)
+  { id: 6, phase: 'Tuck', name: 'Vertical → Tuck Negative', short: 'Negativ-Bewegung',
+    desc: 'Aus Vertical Flag kontrolliert in Tuck-Position (horizontal) absinken. Langsam und kontrolliert.',
+    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
+    tip: 'Letzte 2 Sekunden in der horizontalen Tuck-Position halten. Bremst, baut Kraft auf.',
+    technique: 'Starte in Vertical Flag. Senke den Körper über 4-5 Sekunden kontrolliert ab, bis du horizontal in Tuck-Position bist. Die letzten 2 Sekunden in der horizontalen Endposition halten.',
+    mistakes: 'Zu schnelles Absinken (Schwerkraft macht die Arbeit). Hüfte fällt durch. Verlust der Tuck-Position.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 7, phase: 'Tuck', name: 'Tuck Flag', short: 'Knie an Brust horizontal',
+    desc: 'Beide Knie eng an der Brust gezogen, Körper horizontal. Erster echter Flag.',
+    targetHold: 10, targetSets: 3, perSide: true,
+    tip: 'Calisthenics Family: "Knie zwischen die Ellbogen klemmen." Kompaktheit ist alles.',
+    technique: 'Aus Sprung oder Negative in horizontale Position, Knie sofort an die Brust. Körper bildet eine Linie parallel zum Boden. Alles unter Spannung. Erst nach 10s sicher: nächste Stufe.',
+    mistakes: 'Knie nicht eng genug = längerer Hebel = unnötig schwer. Hüfte sackt durch. Kein bewusster Push-Pull.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 8, phase: 'Tuck', name: 'Advanced Tuck Flag', short: 'Schienbeine parallel',
+    desc: 'Knie etwas vom Körper weg, Schienbeine parallel zum Boden.',
+    targetHold: 10, targetSets: 3, perSide: true,
+    tip: 'Bar Brothers Italia: Bewusste Zwischenstufe. Hebel wird länger, aber noch nicht voll.',
+    technique: 'Knie sind etwa 30-45° vom Körper weg. Schienbeine bleiben parallel zum Boden. Mehr Hebel, mehr Spannung im Core.',
+    mistakes: 'Schienbeine kippen ab. Beine driften nach unten. Hüfte sackt.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 9, phase: 'Tuck', name: 'Advanced Tuck Negative', short: 'Negativ aus Advanced Tuck',
+    desc: 'Negative-Brücke zur One-Leg Stufe.',
+    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
+    tip: 'Wichtiger Übergang: Negative trainieren die Position, in die du gleich aktiv kommen musst.',
+    technique: 'Aus Vertical absenken bis in Advanced Tuck Position. 4-5 Sekunden kontrolliert. In der Endposition kurz halten.',
+    mistakes: 'Zu schnell. Verlust der Beinposition. Hüfte als erstes durch.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  // PHASE 4: ONE-LEG & STRADDLE (Stufe 10-13)
+  { id: 10, phase: 'One-Leg', name: 'One-Leg Flag', short: 'Ein Bein gestreckt',
+    desc: 'Oberes Bein gestreckt, unteres Bein getuckt. Hebel kürzer als Full.',
+    targetHold: 8, targetSets: 3, perSide: true,
+    tip: 'Eric Flag: "Oberschenkel senkrecht halten, Bein gerade strecken."',
+    technique: 'In Tuck-Position kommen, dann ein Bein langsam strecken. Welches Bein gestreckt wird, entscheidet die Seite. Hüfte bleibt waagerecht trotz Hebel-Asymmetrie.',
+    mistakes: 'Hüfte rotiert mit dem gestreckten Bein. Bein nicht voll gestreckt. Tuck-Bein driftet.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 11, phase: 'One-Leg', name: 'One-Leg Negative', short: 'Negativ aus One-Leg',
+    desc: 'Brücke zur Straddle-Stufe.',
+    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
+    tip: 'Antranik: Immer mit der schwächeren Seite anfangen, sonst ermüdet sie zu sehr.',
+    technique: 'Aus Vertical absinken in One-Leg Position, kontrolliert. In der Endposition 1-2 Sekunden halten.',
+    mistakes: 'Schwerere Seite überlasten. Bein nicht gestreckt halten.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 12, phase: 'Straddle', name: 'Straddle Flag', short: 'Beine gespreizt',
+    desc: 'Beide Beine gestreckt und weit gespreizt. Körper horizontal.',
+    targetHold: 8, targetSets: 3, perSide: true,
+    tip: 'Calisthenics Family: "Core extra anspannen, Beine bewusst weit vom Körper wegdrücken."',
+    technique: 'Aus Tuck oder One-Leg in Straddle übergehen. Beide Beine maximal gespreizt strecken. Das Spreizen verkürzt den effektiven Hebel etwas.',
+    mistakes: 'Beine nicht aktiv auseinander gepresst. Hüfte sackt. Atmung blockiert.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 13, phase: 'Straddle', name: 'Straddle Negative', short: 'Negativ aus Straddle',
+    desc: 'Brücke zur Half-Lay Stufe.',
+    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
+    tip: 'Langsamer als bei vorherigen Negatives. Mehr Hebel = mehr Last.',
+    technique: 'Aus Vertical absinken in Straddle. 5-6 Sekunden kontrolliert. Beine bleiben aktiv gespreizt.',
+    mistakes: 'Zu schnell. Beine schließen sich aus Schwäche. Hüfte gibt nach.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  // PHASE 5: FULL (Stufe 14-17)
+  { id: 14, phase: 'Full', name: 'Half-Lay Flag', short: 'Hüfte leicht abgesenkt',
+    desc: 'Beine geschlossen aber Hüfte noch leicht abgesenkt (nicht ganz horizontal).',
+    targetHold: 6, targetSets: 3, perSide: true,
+    tip: 'BERG Movement: "Unverzichtbarer Schritt vor jeder Full-Variante."',
+    technique: 'Beine schließen, gestreckt. Hüfte etwas tiefer als die Schulter-Linie. Bewusst eine Stufe vor der Full halten, statt direkt zu kämpfen.',
+    mistakes: 'Zu früh Full erzwingen. Hüfte zu tief. Beine nicht zusammen.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 15, phase: 'Full', name: 'Full Human Flag', short: 'Endform',
+    desc: 'Beide Beine gestreckt und geschlossen. Körper komplett horizontal.',
+    targetHold: 5, targetSets: 3, perSide: true,
+    tip: 'Eric Flag: "5 saubere Sekunden = Skill beherrscht."',
+    technique: 'Aus Negative oder Sprung in horizontale Position. Beine zusammen, gestreckt. Po, Quadrizeps, Adduktoren, Core, Lats: alles unter maximaler Spannung. Atmung nicht vergessen.',
+    mistakes: 'Beine driften nach unten. Hüfte rotiert. Asymmetrischer Druck. Atem anhalten.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 16, phase: 'Full', name: 'Full Flag Strong Hold', short: 'Längere Holds',
+    desc: 'Full Flag auf Zeit ausbauen. Mastery-Stufe.',
+    targetHold: 15, targetSets: 3, perSide: true,
+    tip: 'Drew Murphy: 30s als persönliches Milestone. Ab 15s wird es zur Mastery.',
+    technique: 'Selbe Position wie Full Flag, aber deutlich länger halten. Atmung jetzt entscheidend. Eventuell dünnere Stange für mehr Herausforderung.',
+    mistakes: 'Atem pressen. Form verlieren zugunsten der Zeit. Asymmetrie zwischen Seiten ignorieren.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  },
+  { id: 17, phase: 'Full', name: 'Dynamic Flag / Flag Press', short: 'Hochdrücken in Flag',
+    desc: 'Aus tiefer Position in Flag hochdrücken oder Flag Raises mit Wiederholungen.',
+    targetHold: 5, targetSets: 3, perSide: true, isReps: true,
+    tip: 'Eric Flag: "Vom Boden hoch ist deutlich schwerer als vom Top absenken."',
+    technique: 'Flag Raise: Aus hängender Position das Becken seitwärts hochziehen in Full Flag. Oder Flag Press: Aus vertikaler Position seitwärts in Flag pressen. Reps statt Hold-Zeit.',
+    mistakes: 'Schwung statt Kraft. Hüfte rotiert beim Hochdrücken. Negative-Phase vergessen.',
+    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
+  }
 ];
 
+// ============================================================
+// Assistance-Bibliothek nach 4 Funktionsblöcken
+// ============================================================
 const ASSISTANCE = [
-  { id: 'sp', name: 'Side Plank + Beinheben', target: '3×10/Seite' },
-  { id: 'pu', name: 'One-Arm Negativklimmzug', target: '3×5/Seite' },
-  { id: 'pp', name: 'Pike Push-ups / Handstand-Hold', target: '3×30 s' },
-  { id: 'ww', name: 'Windshield Wipers (hängend)', target: '3×8/Seite' },
-  { id: 'wm', name: 'Kettlebell Windmill', target: '3×8/Seite' }
+  // Block A: Laterale Rumpfkraft
+  { id: 'a1', block: 'A', name: 'Side Plank + Reach Overhead', target: '3×30-45s/Seite',
+    desc: 'Side Plank Position halten, oberen Arm gestreckt nach oben über den Kopf reichen. Trainiert die gesamte laterale Kette mit Overhead-Komponente.',
+    technique: 'Stütze auf Unterarm oder Hand, Körper bildet eine seitliche Linie. Oberen Arm gestreckt über den Kopf reichen. Hüfte hoch halten, nicht durchhängen lassen.',
+    video: 'https://www.youtube.com/watch?v=PAD7sMmIgts' },
+  { id: 'a2', block: 'A', name: 'Hanging Windshield Wipers', target: '3×6-8/Seite',
+    desc: 'Hängend an Stange, Beine auf 90° heben, kontrolliert wie ein Scheibenwischer von Seite zu Seite bewegen.',
+    technique: 'An Klimmzugstange hängen, Beine gestreckt oder gebeugt auf 90° heben. Langsam von links nach rechts schwingen. Kein Schwung, alles aus dem Core.',
+    video: 'https://www.youtube.com/watch?v=ygwy2b2marI' },
+  { id: 'a3', block: 'A', name: 'Dragon Flag', target: '3×5 Reps',
+    desc: 'Auf Bank/Boden liegend an Stütze festhalten, ganzen Körper als Brett anheben und absenken.',
+    technique: 'Auf Rücken liegen, hinter Kopf eine Stütze greifen (Bank, Stange). Körper als ein Brett anheben bis fast senkrecht, dann langsam (4-5s) absenken. Schultern bleiben am Boden.',
+    video: 'https://www.youtube.com/watch?v=GilFwwUgrhM' },
+  { id: 'a4', block: 'A', name: 'Side Plank Hip Dip', target: '3×12/Seite',
+    desc: 'Aus Side Plank Hüfte zum Boden absenken und wieder hochheben.',
+    technique: 'Side Plank Position. Hüfte langsam Richtung Boden absenken, dann aktiv wieder hochheben. Kontrolliert, kein Schwung.',
+    video: 'https://www.youtube.com/watch?v=jWiqVrL3JAA' },
+
+  // Block B: Schulter & Push (untere Hand)
+  { id: 'b1', block: 'B', name: 'Pike Push-ups', target: '3×8-10',
+    desc: 'Hüfte hoch, Körper in umgekehrtes V. Trainiert die Schulter-Druckkraft für die untere Hand.',
+    technique: 'Hände schulterbreit, Hüfte hoch, Körper bildet umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, wieder hochdrücken.',
+    video: 'https://www.youtube.com/watch?v=paCOGgmLCA0' },
+  { id: 'b2', block: 'B', name: 'Kettlebell Windmill', target: '3×5/Seite',
+    desc: 'Kettlebell überkopf, langsam zur Seite beugen. StrongFirst-Klassiker für Schulter-Mobility und Stability.',
+    technique: 'Kettlebell überkopf gestreckt, Füße breit. Langsam zur Seite beugen, freie Hand wandert am Bein entlang Richtung Boden. Blick immer auf die Kettlebell. Leicht starten!',
+    video: 'https://www.youtube.com/watch?v=1N1Qs9FO4GU' },
+  { id: 'b3', block: 'B', name: 'Wall Handstand Hold', target: '3×30-45s',
+    desc: 'Handstand an der Wand halten. Baut die Overhead-Schulterstabilität auf.',
+    technique: 'Mit dem Bauch zur Wand hochwalken, oder mit Rücken zur Wand kicken. Körper gestreckt, Schultern aktiv hochdrücken. Stabil halten.',
+    video: 'https://www.youtube.com/watch?v=PKEvWyHk1k4' },
+
+  // Block C: Pull-Kraft (obere Hand)
+  { id: 'c1', block: 'C', name: 'One-Arm Negativklimmzug', target: '3×3-5/Seite',
+    desc: 'Mit beiden Armen hoch, dann einarmig langsam absinken. Baut Pull-Kraft für die obere Hand.',
+    technique: 'Mit beiden Armen hochziehen, dann einen Arm loslassen und einarmig 4-6 Sekunden absinken. Andere Hand kann assistieren.',
+    video: 'https://www.youtube.com/shorts/vcYjMwZ1QD4' },
+  { id: 'c2', block: 'C', name: 'Scapular Pull-Ups', target: '3×10',
+    desc: 'Aus Dead Hang nur die Schulterblätter aktiv nach unten ziehen, ohne Armbeugen.',
+    technique: 'An Stange hängen mit gestreckten Armen. Schulterblätter aktiv depressieren und zusammenziehen. Körper hebt sich minimal an. Ellbogen bleiben gestreckt.',
+    video: 'https://www.youtube.com/watch?v=FgYoc4O-cio' },
+  { id: 'c3', block: 'C', name: 'Archer Pull-Ups', target: '3×5/Seite',
+    desc: 'Klimmzug mit Schwerpunkt auf einer Seite, anderer Arm gestreckt. Brücke zum One-Arm.',
+    technique: 'Wide Grip, hochziehen zu einer Seite, der andere Arm bleibt gestreckt. Dann zur anderen Seite. Brust näher an die Zugseite.',
+    video: 'https://www.youtube.com/watch?v=zffQ4U-XmuI' },
+
+  // Block D: Core / Anti-Rotation
+  { id: 'd1', block: 'D', name: 'Hollow Body Hold', target: '3×30-45s',
+    desc: 'Auf Rücken liegen, Schulterblätter und Beine vom Boden anheben. Ganzkörperspannung.',
+    technique: 'Auf Rücken liegen. Schulterblätter und Beine gleichzeitig anheben, Lendenwirbelsäule fest an den Boden drücken. Arme über Kopf gestreckt.',
+    video: 'https://www.youtube.com/watch?v=44ScXWFaVBs' },
+  { id: 'd2', block: 'D', name: 'L-Sit', target: '3×15-20s',
+    desc: 'An Barren oder am Boden auf Händen abstützen, Beine gestreckt nach vorne anheben.',
+    technique: 'Hände auf Barren oder erhöhte Auflagen. Körper hochstützen, Beine gestreckt vorne anheben bis sie horizontal sind. Schulterblätter depressed.',
+    video: 'https://www.youtube.com/watch?v=IaCqZqGSpgM' }
 ];
 
-const STORAGE_KEY = 'humanflag.v1';
+// ============================================================
+// Session-Rotation: Welche Assistance pro Tag empfohlen?
+// ============================================================
+const SESSION_ROTATIONS = [
+  ['a1', 'b1'], // Session 1: Lateral + Push
+  ['a2', 'c1'], // Session 2: Lateral + Pull
+  ['a3', 'b2'], // Session 3: Lateral + Mobility
+  ['a4', 'c2'], // Variant: Hip Dip + Scapular
+  ['a1', 'c3'], // Variant: SP Reach + Archer
+  ['a2', 'd1'], // Variant: Wipers + Hollow
+  ['a3', 'd2']  // Variant: Dragon + L-Sit
+];
+
+const STORAGE_KEY = 'humanflag.v2';
 
 let state = {
   currentStage: 1,
-  todaySets: [0, 0, 0, 0, 0],
+  todaySets: { left: [0,0,0,0,0], right: [0,0,0,0,0] },
+  currentSide: 'left',
   assistance: {},
-  sessions: []
+  sessions: [],
+  lastDeloadDate: null,
+  sessionCount: 0
 };
 
 function load() {
@@ -642,9 +1030,12 @@ function load() {
     if (raw) {
       const parsed = JSON.parse(raw);
       state = { ...state, ...parsed };
-      if (!state.todaySets) state.todaySets = [0, 0, 0, 0, 0];
+      if (!state.todaySets || !state.todaySets.left) {
+        state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
+      }
       if (!state.assistance) state.assistance = {};
       if (!state.sessions) state.sessions = [];
+      if (!state.currentSide) state.currentSide = 'left';
     }
   } catch (e) { console.error(e); }
 }
@@ -656,59 +1047,165 @@ function save() {
 }
 
 function getStage() {
-  return STAGES.find(s => s.id === state.currentStage);
+  return STAGES.find(s => s.id === state.currentStage) || STAGES[0];
 }
 
+function getTodayRotation() {
+  const idx = state.sessionCount % SESSION_ROTATIONS.length;
+  return SESSION_ROTATIONS[idx];
+}
+
+// ============================================================
+// Alerts: Symmetrie, Deload, Stagnation
+// ============================================================
+function checkAlerts() {
+  const alerts = [];
+  const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
+  
+  // 1. Symmetrie-Warnung
+  if (stageSessions.length >= 2) {
+    const recentSessions = stageSessions.slice(0, 5);
+    let totalLeft = 0, totalRight = 0, count = 0;
+    recentSessions.forEach(s => {
+      if (s.leftTotal !== undefined && s.rightTotal !== undefined) {
+        totalLeft += s.leftTotal;
+        totalRight += s.rightTotal;
+        count++;
+      }
+    });
+    if (count > 0 && totalLeft > 0 && totalRight > 0) {
+      const max = Math.max(totalLeft, totalRight);
+      const min = Math.min(totalLeft, totalRight);
+      const diff = ((max - min) / max) * 100;
+      if (diff > 20) {
+        const weakSide = totalLeft < totalRight ? 'linke' : 'rechte';
+        alerts.push({
+          type: 'orange',
+          icon: '⚖',
+          title: 'Symmetrie-Warnung',
+          text: `Deine ${weakSide} Seite ist ${Math.round(diff)}% schwächer. Antranik-Regel: Mit der schwächeren Seite anfangen und 1-2 Sätze mehr.`
+        });
+      }
+    }
+  }
+  
+  // 2. Stagnation (4+ Wochen auf gleicher Stufe)
+  if (stageSessions.length >= 8) {
+    const oldest = new Date(stageSessions[stageSessions.length - 1].date);
+    const daysSince = (Date.now() - oldest.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSince > 28) {
+      alerts.push({
+        type: 'orange',
+        icon: '⏸',
+        title: 'Stagnation erkannt',
+        text: `Du arbeitest seit ${Math.round(daysSince)} Tagen an Stufe ${state.currentStage}. Check: Sind deine Pull-Ups & Pike Push-ups in den letzten Wochen gestiegen? Falls nicht, ist die Assistance der Engpass.`
+      });
+    }
+  }
+  
+  // 3. Deload-Reminder (alle 5-6 Wochen = ~15-18 Sessions)
+  const lastDeload = state.lastDeloadDate ? new Date(state.lastDeloadDate) : null;
+  const sessionsSinceDeload = lastDeload 
+    ? state.sessions.filter(s => new Date(s.date) > lastDeload).length
+    : state.sessions.length;
+  if (sessionsSinceDeload >= 15) {
+    alerts.push({
+      type: 'orange',
+      icon: '🔄',
+      title: 'Deload-Empfehlung',
+      text: `Du hast ${sessionsSinceDeload} Sessions seit dem letzten Deload. Empfehlung: 1 Woche mit halbiertem Volumen, nur 2 Stufen unter deiner aktuellen. Hilft den Schultern und beschleunigt den Progress.`
+    });
+  }
+  
+  // 4. Aufstieg möglich
+  const stage = getStage();
+  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
+  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
+  if (leftValid >= stage.targetSets && rightValid >= stage.targetSets && state.currentStage < 17) {
+    alerts.push({
+      type: 'green',
+      icon: '✓',
+      title: 'Bereit für Stufe ' + (state.currentStage + 1),
+      text: `Beide Seiten erreichen das Ziel von ${stage.targetSets}×${stage.targetHold}s. Speichere die Session und steige auf!`
+    });
+  }
+  
+  return alerts;
+}
+
+function renderAlerts() {
+  const container = document.getElementById('alertsContainer');
+  const alerts = checkAlerts();
+  container.innerHTML = '';
+  alerts.forEach(a => {
+    const div = document.createElement('div');
+    div.className = `alert alert-${a.type} fadeUp`;
+    div.innerHTML = `
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-content">
+        <div class="alert-title">${a.title}</div>
+        <div>${a.text}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ============================================================
+// Render
+// ============================================================
 function render() {
   const stage = getStage();
   
   // Header
   document.getElementById('stageNum').textContent = state.currentStage;
+  document.getElementById('phaseLabel').textContent = stage.phase + '-Phase';
+  document.getElementById('phaseCount').textContent = stage.phase;
   document.getElementById('stageName').textContent = stage.name;
   document.getElementById('stageShort').textContent = stage.short;
   document.getElementById('stageDesc').textContent = stage.desc;
-  document.getElementById('stageInfoBtn').dataset.key = 's' + state.currentStage;
   document.getElementById('stageTip').textContent = stage.tip;
-  document.getElementById('targetHold').textContent = stage.targetHold + 's';
+  
+  const targetUnit = stage.isReps ? ' Reps' : 's';
+  document.getElementById('targetHold').textContent = stage.targetHold + targetUnit;
   document.getElementById('targetSets').textContent = stage.targetSets;
   
-  // Best hold for current stage
+  // Best hold across both sides
   const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
-  const bestHold = stageSessions.reduce((max, s) => Math.max(max, ...s.sets), 0);
+  let bestHold = 0;
+  stageSessions.forEach(s => {
+    if (s.leftSets) s.leftSets.forEach(v => { if (v > bestHold) bestHold = v; });
+    if (s.rightSets) s.rightSets.forEach(v => { if (v > bestHold) bestHold = v; });
+    if (s.sets) s.sets.forEach(v => { if (v > bestHold) bestHold = v; }); // backward compat
+  });
   document.getElementById('bestHold').textContent = bestHold + 's';
   
-  // Step row
-  const stepRow = document.getElementById('stepRow');
-  stepRow.innerHTML = '';
-  STAGES.forEach(s => {
-    const div = document.createElement('div');
-    div.className = 'step';
-    if (s.id === state.currentStage) div.classList.add('active');
-    else if (s.id < state.currentStage) div.classList.add('done');
-    div.textContent = s.id;
-    div.onclick = () => {
-      state.currentStage = s.id;
-      state.todaySets = [0, 0, 0, 0, 0];
-      save();
-      render();
-    };
-    stepRow.appendChild(div);
+  // Side toggle
+  document.querySelectorAll('.side-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.side === state.currentSide);
   });
   
-  // Sets grid
+  // Update side counts
+  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
+  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
+  document.getElementById('leftCount').textContent = `${leftValid}/${stage.targetSets}`;
+  document.getElementById('rightCount').textContent = `${rightValid}/${stage.targetSets}`;
+  
+  // Sets grid (for current side)
+  const currentSets = state.todaySets[state.currentSide];
   const setsGrid = document.getElementById('setsGrid');
   setsGrid.innerHTML = '';
-  state.todaySets.forEach((val, idx) => {
+  currentSets.forEach((val, idx) => {
     const box = document.createElement('div');
     box.className = 'set-box';
     box.innerHTML = `
       <div class="set-label">Set ${idx + 1}</div>
       <div class="set-input-wrap">
-        <input type="number" min="0" max="99" inputmode="numeric" 
-               value="${val || ''}" placeholder="0" 
+        <input type="number" min="0" max="99" inputmode="numeric"
+               value="${val || ''}" placeholder="0"
                class="set-input ${val >= stage.targetHold && val > 0 ? 'valid' : ''}"
                data-idx="${idx}">
-        <span class="set-unit">s</span>
+        <span class="set-unit">${stage.isReps ? 'r' : 's'}</span>
       </div>
     `;
     setsGrid.appendChild(box);
@@ -718,30 +1215,77 @@ function render() {
       const idx = parseInt(e.target.dataset.idx);
       let v = parseInt(e.target.value) || 0;
       v = Math.max(0, Math.min(99, v));
-      state.todaySets[idx] = v;
+      state.todaySets[state.currentSide][idx] = v;
       save();
       updateProgress();
+      renderAlerts();
     });
   });
   
   updateProgress();
   
+  // Symmetrie-Display
+  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const symDisplay = document.getElementById('symmetryDisplay');
+  if (leftTotal > 0 || rightTotal > 0) {
+    symDisplay.style.display = 'block';
+    const total = leftTotal + rightTotal;
+    const leftPct = total > 0 ? (leftTotal / total) * 100 : 50;
+    document.getElementById('symLeft').style.width = leftPct + '%';
+    document.getElementById('symRight').style.width = (100 - leftPct) + '%';
+    document.getElementById('symLeft').textContent = `L ${leftTotal}s`;
+    document.getElementById('symRight').textContent = `R ${rightTotal}s`;
+    
+    if (leftTotal > 0 && rightTotal > 0) {
+      const max = Math.max(leftTotal, rightTotal);
+      const min = Math.min(leftTotal, rightTotal);
+      const diff = Math.round(((max - min) / max) * 100);
+      const status = document.getElementById('symmetryStatus');
+      if (diff > 20) {
+        status.textContent = `${diff}% Unterschied ⚠`;
+        status.style.color = 'var(--red)';
+      } else if (diff > 10) {
+        status.textContent = `${diff}% Unterschied`;
+        status.style.color = 'var(--orange)';
+      } else {
+        status.textContent = `${diff}% ✓ Symmetrisch`;
+        status.style.color = 'var(--green)';
+      }
+    }
+  } else {
+    symDisplay.style.display = 'none';
+  }
+  
   // Assistance
+  const todayRotation = getTodayRotation();
   const assistList = document.getElementById('assistList');
   assistList.innerHTML = '';
-  ASSISTANCE.forEach(a => {
+  
+  // Sortiere: empfohlene zuerst
+  const sorted = [...ASSISTANCE].sort((a, b) => {
+    const aRec = todayRotation.includes(a.id) ? 0 : 1;
+    const bRec = todayRotation.includes(b.id) ? 0 : 1;
+    return aRec - bRec;
+  });
+  
+  sorted.forEach(a => {
+    const isRec = todayRotation.includes(a.id);
     const row = document.createElement('div');
     row.className = 'assist-row';
     if (state.assistance[a.id]) row.classList.add('done');
+    if (isRec) row.classList.add('recommended');
     row.innerHTML = `
       <div class="checkbox">${state.assistance[a.id] ? '<span class="checkmark">✓</span>' : ''}</div>
-      <div class="assist-name">${a.name}</div>
-      <div class="assist-target">${a.target}</div>
+      <div class="assist-meta">
+        <div class="assist-name">${a.name}${isRec ? '<span class="rec-tag">Heute</span>' : ''}</div>
+        <div class="assist-block">Block ${a.block} · ${a.target}</div>
+      </div>
       <button class="info-btn" data-key="${a.id}">?</button>
     `;
     row.querySelector('.info-btn').addEventListener('click', e => {
       e.stopPropagation();
-      openModal(e.target.dataset.key);
+      openAssistModal(a.id);
     });
     row.onclick = () => {
       state.assistance[a.id] = !state.assistance[a.id];
@@ -750,32 +1294,45 @@ function render() {
     };
     assistList.appendChild(row);
   });
-  document.getElementById('assistDone').textContent = 
+  
+  document.getElementById('assistDone').textContent =
     Object.values(state.assistance).filter(Boolean).length;
+  document.getElementById('assistTotal').textContent = ASSISTANCE.length;
   
   // Nav buttons
   document.getElementById('prevBtn').disabled = state.currentStage === 1;
-  document.getElementById('nextBtn').disabled = state.currentStage === 5;
+  document.getElementById('nextBtn').disabled = state.currentStage === 17;
+  document.getElementById('prevStageBtn').disabled = state.currentStage === 1;
+  document.getElementById('nextStageBtn').disabled = state.currentStage === 17;
   
-  // History
   renderHistory();
+  renderAlerts();
 }
 
 function updateProgress() {
   const stage = getStage();
-  const total = state.todaySets.reduce((a, b) => a + (parseInt(b) || 0), 0);
-  const valid = state.todaySets.filter(s => parseInt(s) >= stage.targetHold).length;
+  const currentSets = state.todaySets[state.currentSide];
+  const total = currentSets.reduce((a, b) => a + (parseInt(b) || 0), 0);
+  const valid = currentSets.filter(s => parseInt(s) >= stage.targetHold).length;
   
-  document.getElementById('totalSec').textContent = total;
+  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const grandTotal = leftTotal + rightTotal;
+  
+  document.getElementById('totalSec').textContent = grandTotal;
   document.getElementById('validCount').textContent = valid;
   document.getElementById('validTarget').textContent = stage.targetSets;
+  document.getElementById('currentSideLabel').textContent = state.currentSide === 'left' ? 'links' : 'rechts';
   
   const pct = Math.min(100, (valid / stage.targetSets) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   
+  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
+  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
+  
   const readyBadge = document.getElementById('readyBadge');
   const nextBtn = document.getElementById('nextBtn');
-  if (valid >= stage.targetSets && state.currentStage < 5) {
+  if (leftValid >= stage.targetSets && rightValid >= stage.targetSets && state.currentStage < 17) {
     readyBadge.style.display = 'inline';
     nextBtn.classList.add('primary');
   } else {
@@ -783,15 +1340,7 @@ function updateProgress() {
     nextBtn.classList.remove('primary');
   }
   
-  document.getElementById('saveBtn').disabled = total === 0;
-  
-  // Update valid styling on inputs
-  document.querySelectorAll('.set-input').forEach(input => {
-    const idx = parseInt(input.dataset.idx);
-    const v = state.todaySets[idx];
-    if (v >= stage.targetHold && v > 0) input.classList.add('valid');
-    else input.classList.remove('valid');
-  });
+  document.getElementById('saveBtn').disabled = grandTotal === 0;
 }
 
 function renderHistory() {
@@ -802,56 +1351,117 @@ function renderHistory() {
     list.innerHTML = '<div class="empty">Noch keine Sessions geloggt.</div>';
     return;
   }
-  state.sessions.slice(0, 15).forEach(s => {
+  state.sessions.slice(0, 20).forEach(s => {
     const d = new Date(s.date);
     const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
     const row = document.createElement('div');
     row.className = 'hist-row';
+    let setsText = '';
+    if (s.leftSets && s.rightSets) {
+      setsText = `L ${s.leftSets.join('·')} · R ${s.rightSets.join('·')}`;
+    } else if (s.sets) {
+      setsText = s.sets.map(x => x + 's').join('·');
+    }
     row.innerHTML = `
       <div class="hist-date">${dateStr}</div>
       <div class="hist-stage">S${s.stage}</div>
-      <div class="hist-sets">${s.sets.map(x => x + 's').join(' · ')}</div>
+      <div class="hist-sets">${setsText}</div>
       <div class="hist-total">${s.total}s</div>
     `;
     list.appendChild(row);
   });
 }
 
-document.getElementById('saveBtn').onclick = () => {
+// ============================================================
+// Modal
+// ============================================================
+function openStageModal() {
   const stage = getStage();
-  const total = state.todaySets.reduce((a, b) => a + (parseInt(b) || 0), 0);
+  document.getElementById('modalTitle').textContent = stage.name;
+  document.getElementById('modalSub').textContent = `Stufe ${stage.id} · ${stage.phase}-Phase`;
+  document.getElementById('modalDesc').textContent = stage.desc;
+  document.getElementById('modalTechnique').textContent = stage.technique || stage.tip;
+  document.getElementById('modalTechniqueWrap').style.display = 'block';
+  document.getElementById('modalMistakes').textContent = stage.mistakes || '';
+  document.getElementById('modalMistakesWrap').style.display = stage.mistakes ? 'block' : 'none';
+  document.getElementById('modalLink').href = stage.video || '#';
+  document.getElementById('modalLink').style.display = stage.video ? 'flex' : 'none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openAssistModal(id) {
+  const a = ASSISTANCE.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modalTitle').textContent = a.name;
+  document.getElementById('modalSub').textContent = `Block ${a.block} · ${a.target}`;
+  document.getElementById('modalDesc').textContent = a.desc;
+  document.getElementById('modalTechnique').textContent = a.technique;
+  document.getElementById('modalTechniqueWrap').style.display = 'block';
+  document.getElementById('modalMistakesWrap').style.display = 'none';
+  document.getElementById('modalLink').href = a.video;
+  document.getElementById('modalLink').style.display = 'flex';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ============================================================
+// Event Handlers
+// ============================================================
+document.querySelectorAll('.side-btn').forEach(btn => {
+  btn.onclick = () => {
+    state.currentSide = btn.dataset.side;
+    save();
+    render();
+  };
+});
+
+document.getElementById('saveBtn').onclick = () => {
+  const leftSets = state.todaySets.left.filter(s => s > 0);
+  const rightSets = state.todaySets.right.filter(s => s > 0);
+  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
+  const total = leftTotal + rightTotal;
   if (total === 0) return;
+  
   const entry = {
     date: new Date().toISOString(),
     stage: state.currentStage,
-    sets: state.todaySets.filter(s => s > 0),
+    leftSets: leftSets,
+    rightSets: rightSets,
+    leftTotal: leftTotal,
+    rightTotal: rightTotal,
     total: total
   };
   state.sessions.unshift(entry);
-  state.sessions = state.sessions.slice(0, 50);
-  state.todaySets = [0, 0, 0, 0, 0];
+  state.sessions = state.sessions.slice(0, 100);
+  state.sessionCount = (state.sessionCount || 0) + 1;
+  state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
   state.assistance = {};
+  state.currentSide = 'left';
   save();
   render();
 };
 
-document.getElementById('prevBtn').onclick = () => {
+document.getElementById('prevBtn').onclick = 
+document.getElementById('prevStageBtn').onclick = () => {
   if (state.currentStage > 1) {
     state.currentStage--;
-    state.todaySets = [0, 0, 0, 0, 0];
+    state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
     save();
     render();
   }
 };
 
-document.getElementById('nextBtn').onclick = () => {
-  if (state.currentStage < 5) {
+document.getElementById('nextBtn').onclick = 
+document.getElementById('nextStageBtn').onclick = () => {
+  if (state.currentStage < 17) {
     state.currentStage++;
-    state.todaySets = [0, 0, 0, 0, 0];
+    state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
     save();
     render();
   }
 };
+
+document.getElementById('stageInfoBtn').onclick = openStageModal;
 
 document.getElementById('histHeader').onclick = () => {
   const body = document.getElementById('histBody');
@@ -863,6 +1473,13 @@ document.getElementById('histHeader').onclick = () => {
     body.classList.add('collapsed-body');
     toggle.textContent = '+';
   }
+};
+
+document.getElementById('modalClose').onclick = () =>
+  document.getElementById('modalOverlay').classList.remove('open');
+document.getElementById('modalOverlay').onclick = (e) => {
+  if (e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('open');
 };
 
 document.getElementById('exportBtn').onclick = () => {
@@ -910,95 +1527,15 @@ document.getElementById('resetBtn').onclick = () => {
     localStorage.removeItem(STORAGE_KEY);
     state = {
       currentStage: 1,
-      todaySets: [0, 0, 0, 0, 0],
+      todaySets: { left: [0,0,0,0,0], right: [0,0,0,0,0] },
+      currentSide: 'left',
       assistance: {},
-      sessions: []
+      sessions: [],
+      lastDeloadDate: null,
+      sessionCount: 0
     };
     render();
   }
-};
-
-
-const INFO = {
-  s1: {
-    title: 'Vertical Flag',
-    sub: 'Stufe 1 — Press Grip Hold',
-    desc: 'Stell dich seitlich an eine vertikale Stange und greife sie mit beiden Händen übereinander. Spring hoch, sodass dein Körper senkrecht nach oben zeigt. Der obere Arm zieht die Stange aktiv nach unten zu dir, der untere Arm drückt sie von dir weg — wie ein Lenkrad. Schulter des unteren Arms aktiv aus dem Ohr schieben. Ziel: 3 × 15 Sekunden halten.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  s2: {
-    title: 'Tuck Flag',
-    sub: 'Stufe 2 — Knie an Brust',
-    desc: 'Aus der Vertical Flag die Knie eng an die Brust ziehen und den Körper langsam zur Horizontalen kippen. Je mehr du kippst, desto schwerer wird es. Druck-Zug-Mechanismus bleibt gleich. Sauberkeit vor Haltezeit. Ziel: 3 × 15 Sekunden.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  s3: {
-    title: 'Advanced Tuck',
-    sub: 'Stufe 3 — Oberschenkel parallel',
-    desc: 'Oberschenkel parallel zum Boden strecken, Unterschenkel hängen senkrecht runter. Der Hebel wird deutlich länger als beim Tuck. Rumpf, Po und Beine komplett angespannt halten. Das ist oft die härteste Übergangsstufe. Ziel: 3 × 10 Sekunden.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  s4: {
-    title: 'Straddle Flag',
-    sub: 'Stufe 4 — Beine gegrätscht',
-    desc: 'Beide Beine gestreckt, so weit wie möglich gegrätscht. Das Spreizen verkürzt den effektiven Hebel leicht und ist die klassische Zwischenstufe. Beine aktiv auseinanderpressen, nicht nur hängen lassen. Atmen nicht vergessen. Ziel: 3 × 8 Sekunden.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  s5: {
-    title: 'Full Human Flag',
-    sub: 'Stufe 5 — Endform',
-    desc: 'Beide Beine gestreckt und zusammen, Körper komplett horizontal. Maximaler Hebel, jede Schwäche fliegt sofort auf. Erst 2 Sekunden anstreben, dann 5, dann 10. Filmen hilft, weil das Gefühl oft trügt. Ziel: 3 × 10 Sekunden.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  sp: {
-    title: 'Side Plank + Beinheben',
-    sub: 'Assistance — Laterale Rumpfkette',
-    desc: 'Seitstützposition auf dem Unterarm oder der Hand. Das obere Bein langsam heben und kontrolliert senken. Hüfte nicht absinken lassen. Beide Seiten gleich trainieren — Asymmetrie ist bei der Flag ein großes Problem. Ziel: 3 × 10 Wdh. pro Seite.',
-    video: 'https://www.youtube.com/watch?v=PAD7sMmIgts'
-  },
-  pu: {
-    title: 'One-Arm Negativklimmzug',
-    sub: 'Assistance — Latissimus & Bizeps',
-    desc: 'Mit beiden Armen hochziehen, dann einen Arm loslassen und dich einarmig so langsam wie möglich (4–6 Sekunden) wieder runterlassen. Baut sehr schnell Kraft auf, ohne dass du den konzentrischen Teil schon schaffst. Ziel: 3 × 5 pro Seite.',
-    video: 'https://www.youtube.com/shorts/vcYjMwZ1QD4'
-  },
-  pp: {
-    title: 'Pike Push-ups',
-    sub: 'Assistance — Schultern & Druckkraft',
-    desc: 'Hüfte hoch, Körper bildet ein umgekehrtes V. Ellbogen beugen bis der Kopf fast den Boden berührt, dann wieder hochdrücken. Trainiert die Druckbewegung, die der untere Arm bei der Flag braucht. Handstand-Hold an der Wand ersetzt das auf höherem Niveau. Ziel: 3 × 30 Sekunden oder 3 × 10 Wdh.',
-    video: 'https://www.youtube.com/watch?v=paCOGgmLCA0'
-  },
-  ww: {
-    title: 'Windshield Wipers',
-    sub: 'Assistance — Obliques & Rumpfrotation',
-    desc: 'An der Klimmzugstange hängen, Beine auf 90 Grad heben, dann wie ein Scheibenwischer langsam von links nach rechts schwingen. Kontrollierte Bewegung, kein Schwung. Für Anfänger: erst mit gebeugten Knien starten. Ziel: 3 × 8 pro Seite.',
-    video: 'https://www.youtube.com/watch?v=ygwy2b2marI'
-  },
-  wm: {
-    title: 'Kettlebell Windmill',
-    sub: 'Assistance — Laterale Stabilität',
-    desc: 'Kettlebell in einer Hand über den Kopf strecken, Füße hüftbreit und 45 Grad zur Seite. Langsam zur Seite beugen, die freie Hand gleitet am Bein entlang Richtung Boden. Blick bleibt immer auf die Kettlebell. Nur so tief wie die Form es erlaubt. Leichtes Gewicht, saubere Ausführung. Ziel: 3 × 8 pro Seite.',
-    video: 'https://www.youtube.com/watch?v=1N1Qs9FO4GU'
-  }
-};
-
-function openModal(key) {
-  const d = INFO[key];
-  if (!d) return;
-  document.getElementById('modalTitle').textContent = d.title;
-  document.getElementById('modalSub').textContent = d.sub;
-  document.getElementById('modalDesc').textContent = d.desc;
-  document.getElementById('modalLink').href = d.video;
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-document.getElementById('modalClose').onclick = () =>
-  document.getElementById('modalOverlay').classList.remove('open');
-document.getElementById('stageInfoBtn').onclick = () =>
-  openModal(document.getElementById('stageInfoBtn').dataset.key);
-document.getElementById('modalOverlay').onclick = (e) => {
-  if (e.target === document.getElementById('modalOverlay'))
-    document.getElementById('modalOverlay').classList.remove('open');
 };
 
 load();
