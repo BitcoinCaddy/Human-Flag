@@ -15,653 +15,181 @@
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
 <style>
-:root {
-  --surface: #ffffff;
-  --surface2: #f0f0f0;
-  --border: #e0e0e0;
-  --border-focus: #cccccc;
-  --orange: #ED7807;
-  --orange-dim: rgba(237, 120, 7, 0.10);
-  --orange-glow: rgba(237, 120, 7, 0.20);
-  --red: #d64545;
-  --red-dim: rgba(214, 69, 69, 0.10);
-  --green: #2d8a3e;
-  --green-dim: rgba(45, 138, 62, 0.10);
-  --text: #1a1a1a;
-  --muted: #888888;
-  --mono: 'Space Mono', monospace;
-  --sans: 'Syne', sans-serif;
+:root{
+  --surface:#fff;--surface2:#f0f0f0;--border:#e0e0e0;--border-focus:#ccc;
+  --orange:#ED7807;--orange-dim:rgba(237,120,7,.1);--orange-glow:rgba(237,120,7,.2);
+  --red:#d64545;--red-dim:rgba(214,69,69,.1);
+  --green:#2d8a3e;--green-dim:rgba(45,138,62,.1);
+  --text:#1a1a1a;--muted:#888;
+  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: #f2f2f2;
-  font-family: var(--sans);
-  color: var(--text);
-  min-height: 100vh;
-  padding: 1.5rem 1rem 2rem;
-  display: flex;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f2f2f2;font-family:var(--sans);color:var(--text);min-height:100vh;
+  padding:1.5rem 1rem 2rem;display:flex;justify-content:center;-webkit-tap-highlight-color:transparent;}
 input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
-button { font-family: inherit; }
-button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.container {
-  width: 100%;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.fadeUp { animation: fadeUp 0.6s ease both; }
-.delay-0 { animation-delay: 0s; }
-.delay-1 { animation-delay: 0.05s; }
-.delay-2 { animation-delay: 0.1s; }
-.delay-3 { animation-delay: 0.15s; }
-.delay-4 { animation-delay: 0.2s; }
-.delay-5 { animation-delay: 0.25s; }
-.delay-6 { animation-delay: 0.3s; }
-
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  margin-bottom: 0.4rem;
-}
-.headline {
-  font-family: var(--sans);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-size: clamp(1.8rem, 6vw, 2.4rem);
-  margin: 0 0 0.3rem;
-  line-height: 1;
-}
-.accent { color: var(--orange); }
-.sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  overflow: hidden;
-}
-.card-header {
-  padding: 0.7rem 1.2rem;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.card-label {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-}
-.card-count {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--text);
-}
-.card-body { padding: 1.1rem 1.4rem; }
-
-.alert {
-  border-radius: 12px;
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.8rem;
-  font-size: 0.85rem;
-  line-height: 1.4;
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-}
-.alert-orange { background: var(--orange-dim); border: 1px solid var(--orange); color: var(--text); }
-.alert-red { background: var(--red-dim); border: 1px solid var(--red); color: var(--text); }
-.alert-green { background: var(--green-dim); border: 1px solid var(--green); color: var(--text); }
-.alert-icon { font-size: 1rem; flex-shrink: 0; }
-.alert-content { flex: 1; }
-.alert-title {
-  font-weight: 700;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.2rem;
-  font-family: var(--mono);
-}
-
-.stage-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
-}
-.stage-arrow {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.stage-arrow:hover:not(:disabled) { border-color: var(--orange); color: var(--orange); }
-.stage-indicator {
-  flex: 1;
-  text-align: center;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-.stage-indicator .current {
-  color: var(--orange);
-  font-size: 1.4rem;
-}
-.stage-indicator .total { color: var(--muted); }
-
-.phase-label {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  margin-bottom: 0.3rem;
-}
-
-.stage-name {
-  font-family: var(--sans);
-  font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.15rem;
-}
-.stage-short {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--orange);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 0.6rem;
-}
-.stage-desc { font-size: 0.92rem; line-height: 1.45; margin-bottom: 0.8rem; }
-
-.tip-box {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.7rem 0.9rem;
-  margin-bottom: 1rem;
-}
-.tip-label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--orange);
-  display: block;
-  margin-bottom: 0.25rem;
-}
-.tip-text { font-size: 0.85rem; line-height: 1.4; }
-
-.target-row { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
-.target-box {
-  flex: 1;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.7rem 0.4rem;
-  text-align: center;
-}
-.target-val {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 0.15rem;
-}
-.target-label {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-}
-
-.side-toggle {
-  display: flex;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 1rem;
-}
-.side-btn {
-  flex: 1;
-  padding: 0.5rem;
-  border: none;
-  background: none;
-  border-radius: 8px;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.side-btn.active {
-  background: var(--surface);
-  color: var(--orange);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-.side-btn .count {
-  display: inline-block;
-  margin-left: 0.3rem;
-  font-size: 0.65rem;
-  opacity: 0.6;
-}
-
-.sets-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-.set-box { display: flex; flex-direction: column; gap: 0.3rem; }
-.set-label {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--muted);
-  text-align: center;
-}
-.set-input-wrap {
-  background: var(--surface2);
-  border: 1px solid var(--border-focus);
-  border-radius: 10px;
-  padding: 0.4rem 0.3rem;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.set-input-wrap:focus-within {
-  border-color: var(--orange);
-  box-shadow: 0 0 0 3px var(--orange-glow);
-  background: #fff;
-}
-.set-input {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 1rem;
-  border: none;
-  background: transparent;
-  width: 2rem;
-  text-align: center;
-  outline: none;
-  color: var(--text);
-}
-.set-input.valid { color: var(--orange); }
-.set-unit {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--muted);
-}
-
-.progress-line { margin-bottom: 1rem; }
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.4rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--muted);
-}
-.ready-badge { color: var(--orange); font-weight: 700; }
-.progress-bar {
-  height: 4px;
-  background: var(--surface2);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--orange);
-  transition: width 0.3s ease;
-  width: 0%;
-}
-
-.btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 0.9rem;
-  width: 100%;
-}
-.btn:hover { border-color: var(--orange); color: var(--orange); }
-.btn.primary {
-  border-color: var(--orange);
-  color: var(--orange);
-  background: var(--orange-dim);
-}
-.btn.small { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-
-.assist-row {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.assist-row:last-child { border-bottom: none; }
-.assist-row.done { opacity: 0.5; }
-.assist-row.recommended {
-  padding-left: 0.5rem;
-  margin: 0 -0.5rem;
-  background: var(--orange-dim);
-  border-radius: 8px;
-  border-bottom: none;
-  padding-right: 0.5rem;
-}
-.checkbox {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 1px solid var(--border-focus);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.assist-row.done .checkbox {
-  border-color: var(--orange);
-  background: var(--orange-dim);
-}
-.checkmark { color: var(--orange); font-weight: 700; font-size: 0.9rem; }
-.assist-meta { flex: 1; min-width: 0; }
-.assist-name { font-size: 0.88rem; font-weight: 600; }
-.assist-block {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-.assist-target {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--muted);
-  font-weight: 700;
-  white-space: nowrap;
-}
-.info-btn {
-  border-radius: 50%;
-  border: 1px solid var(--border-focus);
-  background: none;
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 3px 7px;
-  line-height: 1;
-  transition: all 0.2s;
-  font-family: var(--mono);
-}
-.info-btn:hover { border-color: var(--orange); color: var(--orange); }
-
-.rec-tag {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  background: var(--orange);
-  color: white;
-  padding: 1px 5px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-left: 0.3rem;
-  vertical-align: middle;
-}
-
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 1rem;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 1.4rem;
-  width: 100%;
-  max-width: 480px;
-  max-height: 85vh;
-  overflow-y: auto;
-  animation: fadeUp 0.25s ease both;
-}
-.modal-title {
-  font-family: var(--sans);
-  font-weight: 800;
-  font-size: 1.2rem;
-  margin-bottom: 0.2rem;
-  line-height: 1.2;
-}
-.modal-sub {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--orange);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 1rem;
-}
-.modal-desc {
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: var(--text);
-  margin-bottom: 1rem;
-}
-.modal-section {
-  background: var(--surface2);
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  margin-bottom: 0.7rem;
-}
-.modal-section-label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--orange);
-  display: block;
-  margin-bottom: 0.3rem;
-}
-.modal-section-text { font-size: 0.83rem; line-height: 1.4; }
-.modal-video-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  text-decoration: none;
-  color: var(--text);
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  transition: all 0.2s;
-}
-.modal-video-link:hover { border-color: var(--orange); color: var(--orange); }
-.modal-close {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 0.85rem;
-  width: 100%;
-}
-
-.nav-row { display: flex; gap: 0.6rem; }
-
-.hist-row {
-  display: grid;
-  grid-template-columns: 45px 28px 1fr 38px;
-  gap: 0.4rem;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.75rem;
-}
-.hist-row:last-of-type { border-bottom: none; }
-.hist-date { font-family: var(--mono); color: var(--muted); font-size: 0.7rem; }
-.hist-stage {
-  font-family: var(--mono);
-  font-weight: 700;
-  color: var(--orange);
-  font-size: 0.7rem;
-}
-.hist-sets { font-family: var(--mono); font-size: 0.7rem; }
-.hist-side {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-.hist-total {
-  font-family: var(--mono);
-  font-weight: 700;
-  text-align: right;
-  font-size: 0.7rem;
-}
-.empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 1.5rem;
-  font-size: 0.85rem;
-}
-.export-row {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.export-row .btn { width: auto; flex: 1; }
-.reset-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 0.7rem;
-  cursor: pointer;
-  text-decoration: underline;
-  margin-top: 0.8rem;
-  padding: 0.3rem;
-  display: block;
-  width: 100%;
-}
-.footer {
-  margin-top: 0.5rem;
-  font-size: 0.62rem;
-  color: var(--muted);
-  text-align: center;
-}
-
-.collapsed-body { display: none; }
-
-.symmetry-bar {
-  display: flex;
-  height: 24px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  margin: 0.4rem 0;
-  background: var(--surface2);
-}
-.sym-left, .sym-right {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  transition: all 0.3s ease;
-}
-.sym-left {
-  background: var(--orange-dim);
-  color: var(--orange);
-}
-.sym-right {
-  background: var(--orange);
-  color: white;
-}
-
-@media (max-width: 440px) {
-  body { padding: 1rem 0.7rem 2rem; }
-  .card-body { padding: 1rem 1rem; }
-  .set-input { font-size: 0.95rem; width: 1.8rem; }
-  .stage-name { font-size: 1.25rem; }
-}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
+button{font-family:inherit;}
+button:disabled{opacity:.4;cursor:not-allowed;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{transform:scale(.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+.container{width:100%;max-width:520px;display:flex;flex-direction:column;gap:1rem;}
+.fadeUp{animation:fadeUp .5s ease both;}
+.d0{animation-delay:0s;}.d1{animation-delay:.05s;}.d2{animation-delay:.1s;}
+.d3{animation-delay:.15s;}.d4{animation-delay:.2s;}.d5{animation-delay:.25s;}
+.headline{font-family:var(--sans);font-weight:800;letter-spacing:-.02em;
+  font-size:clamp(1.8rem,6vw,2.4rem);margin:0 0 .3rem;line-height:1;}
+.accent{color:var(--orange);}
+.sub{color:var(--muted);font-size:.85rem;margin-bottom:.5rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;}
+.card-header{padding:.7rem 1.2rem;background:var(--surface2);border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;}
+.card-label{font-family:var(--mono);font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.2em;color:var(--muted);}
+.card-count{font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--text);}
+.card-body{padding:1.1rem 1.4rem;}
+.alert{border-radius:12px;padding:.8rem 1rem;margin-bottom:.8rem;font-size:.85rem;
+  line-height:1.4;display:flex;gap:.6rem;align-items:flex-start;}
+.alert-orange{background:var(--orange-dim);border:1px solid var(--orange);}
+.alert-red{background:var(--red-dim);border:1px solid var(--red);}
+.alert-green{background:var(--green-dim);border:1px solid var(--green);}
+.alert-icon{font-size:1rem;flex-shrink:0;}
+.alert-title{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:.2rem;font-family:var(--mono);}
+.stage-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:.5rem;}
+.stage-arrow{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.stage-arrow:hover:not(:disabled){border-color:var(--orange);color:var(--orange);}
+.stage-indicator{flex:1;text-align:center;}
+.stage-indicator .current{color:var(--orange);font-size:1.5rem;font-family:var(--mono);font-weight:700;}
+.stage-indicator .total{color:var(--muted);font-family:var(--mono);font-size:.9rem;}
+.phase-label{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);}
+.stage-name{font-family:var(--sans);font-weight:800;font-size:1.4rem;letter-spacing:-.02em;margin-bottom:.15rem;}
+.stage-short{font-family:var(--mono);font-size:.72rem;color:var(--orange);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.6rem;}
+.stage-desc{font-size:.92rem;line-height:1.45;margin-bottom:.8rem;}
+.tip-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;margin-bottom:1rem;}
+.tip-label{font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);display:block;margin-bottom:.25rem;}
+.tip-text{font-size:.85rem;line-height:1.4;}
+.target-row{display:flex;gap:.6rem;margin-bottom:1rem;}
+.target-box{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:.7rem .4rem;text-align:center;}
+.target-val{font-family:var(--mono);font-weight:700;font-size:1.1rem;margin-bottom:.15rem;}
+.target-val.achieved{color:var(--green);}
+.target-label{font-family:var(--mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);}
+.side-toggle{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:1rem;}
+.side-btn{flex:1;padding:.5rem;border:none;background:none;border-radius:8px;font-family:var(--mono);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .2s;}
+.side-btn.active{background:var(--surface);color:var(--orange);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.side-btn .count{display:inline-block;margin-left:.3rem;font-size:.65rem;opacity:.6;}
+.sets-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-bottom:1rem;}
+.set-box{display:flex;flex-direction:column;gap:.3rem;}
+.set-label{font-family:var(--mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);text-align:center;}
+.set-input-wrap{background:var(--surface2);border:1px solid var(--border-focus);border-radius:10px;padding:.4rem .3rem;display:flex;align-items:baseline;justify-content:center;transition:all .2s;}
+.set-input-wrap:focus-within{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow);background:#fff;}
+.set-input{font-family:var(--mono);font-weight:700;font-size:1rem;border:none;background:transparent;width:2rem;text-align:center;outline:none;color:var(--text);}
+.set-input.valid{color:var(--orange);}
+.set-unit{font-family:var(--mono);font-size:.65rem;color:var(--muted);}
+.progress-line{margin-bottom:1rem;}
+.progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;font-family:var(--mono);font-size:.7rem;color:var(--muted);}
+.ready-badge{color:var(--green);font-weight:700;}
+.progress-bar{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--orange);transition:width .3s ease;width:0%;}
+.symmetry-bar{display:flex;height:24px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin:.4rem 0;background:var(--surface2);}
+.sym-left{background:var(--orange-dim);color:var(--orange);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.65rem;font-weight:700;transition:all .3s;}
+.sym-right{background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.65rem;font-weight:700;transition:all .3s;}
+.btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.6rem 1rem;cursor:pointer;transition:all .2s;font-family:var(--sans);font-weight:600;font-size:.9rem;width:100%;}
+.btn:hover:not(:disabled){border-color:var(--orange);color:var(--orange);}
+.btn.primary{border-color:var(--orange);color:var(--orange);background:var(--orange-dim);}
+.btn.small{padding:.5rem .8rem;font-size:.8rem;}
+.btn.green-btn{border-color:var(--green);color:var(--green);background:var(--green-dim);}
+.assist-row{display:flex;align-items:center;gap:.7rem;padding:.7rem 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .2s;}
+.assist-row:last-child{border-bottom:none;}
+.assist-row.done{opacity:.5;}
+.assist-row.recommended{padding:.7rem .6rem;margin:0 -.6rem .4rem;background:var(--orange-dim);border-radius:10px;border-bottom:none;}
+.checkbox{width:22px;height:22px;border-radius:6px;border:1px solid var(--border-focus);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.assist-row.done .checkbox{border-color:var(--orange);background:var(--orange-dim);}
+.checkmark{color:var(--orange);font-weight:700;font-size:.9rem;}
+.assist-meta{flex:1;min-width:0;}
+.assist-name{font-size:.88rem;font-weight:600;}
+.assist-block{font-family:var(--mono);font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.assist-best{font-family:var(--mono);font-size:.65rem;margin-top:.1rem;}
+.assist-best.met{color:var(--green);}
+.assist-best.unmet{color:var(--muted);}
+.assist-target{font-family:var(--mono);font-size:.7rem;color:var(--muted);font-weight:700;white-space:nowrap;}
+.info-btn{border-radius:50%;border:1px solid var(--border-focus);background:none;color:var(--muted);font-size:.7rem;font-weight:700;cursor:pointer;flex-shrink:0;padding:3px 7px;line-height:1;transition:all .2s;font-family:var(--mono);}
+.info-btn:hover{border-color:var(--orange);color:var(--orange);}
+.rec-tag{display:inline-block;font-family:var(--mono);font-size:.55rem;background:var(--orange);color:#fff;padding:1px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:.1em;margin-left:.3rem;vertical-align:middle;}
+.workout-screen{display:none;}
+.workout-screen.active{display:flex;flex-direction:column;gap:1rem;}
+.tracker-screen{display:flex;flex-direction:column;gap:1rem;}
+.workout-header{text-align:center;padding:1rem 0 .5rem;}
+.workout-phase{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:.3rem;}
+.workout-exercise{font-family:var(--sans);font-weight:800;font-size:1.3rem;letter-spacing:-.02em;margin-bottom:.2rem;}
+.workout-target{font-family:var(--mono);font-size:.85rem;color:var(--orange);}
+.timer-ring{position:relative;display:flex;align-items:center;justify-content:center;width:140px;height:140px;margin:0 auto 1rem;}
+.timer-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.timer-ring circle{fill:none;stroke-width:8;stroke-linecap:round;}
+.timer-bg{stroke:var(--border);}
+.timer-fill{stroke:var(--orange);transition:stroke-dashoffset .1s linear;stroke-dasharray:376;stroke-dashoffset:376;}
+.timer-fill.done{stroke:var(--green);}
+.timer-inner{position:relative;text-align:center;}
+.timer-value{font-family:var(--mono);font-weight:700;font-size:2rem;color:var(--text);display:block;}
+.timer-sub{font-family:var(--mono);font-size:.65rem;color:var(--muted);text-transform:uppercase;}
+.set-progress{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem;}
+.set-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);transition:all .2s;}
+.set-dot.done{background:var(--orange);border-color:var(--orange);}
+.set-dot.current{border-color:var(--orange);background:var(--surface);}
+.side-indicator{font-family:var(--mono);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.15em;text-align:center;padding:.4rem 1rem;border-radius:8px;margin-bottom:.8rem;}
+.side-indicator.left{background:var(--orange-dim);color:var(--orange);}
+.side-indicator.right{background:var(--surface2);color:var(--muted);}
+.hold-input-wrap{background:var(--surface2);border:1px solid var(--border-focus);border-radius:14px;padding:1rem;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:.8rem;}
+.hold-input{font-family:var(--mono);font-weight:700;font-size:2rem;border:none;background:transparent;width:4rem;text-align:center;outline:none;color:var(--text);}
+.hold-unit{font-family:var(--mono);font-size:1.2rem;color:var(--muted);}
+.workout-btn-row{display:flex;gap:.6rem;}
+.congrats-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.congrats-overlay.show{display:flex;}
+.congrats-box{background:var(--surface);border-radius:20px;padding:2rem 1.5rem;text-align:center;max-width:340px;width:100%;animation:popIn .3s ease;}
+.congrats-icon{font-size:3rem;margin-bottom:.5rem;}
+.congrats-title{font-family:var(--sans);font-weight:800;font-size:1.4rem;margin-bottom:.5rem;}
+.congrats-sub{font-size:.9rem;color:var(--muted);line-height:1.4;margin-bottom:1.2rem;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-end;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:20px;padding:1.4rem;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;animation:fadeUp .25s ease both;}
+.modal-title{font-family:var(--sans);font-weight:800;font-size:1.2rem;margin-bottom:.2rem;line-height:1.2;}
+.modal-sub{font-family:var(--mono);font-size:.65rem;color:var(--orange);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;}
+.modal-desc{font-size:.88rem;line-height:1.5;margin-bottom:1rem;}
+.modal-section{background:var(--surface2);border-radius:10px;padding:.7rem .9rem;margin-bottom:.7rem;}
+.modal-section-label{font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--orange);display:block;margin-bottom:.3rem;}
+.modal-section-text{font-size:.83rem;line-height:1.4;}
+.modal-video-link{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:600;margin-bottom:1rem;transition:all .2s;}
+.modal-video-link:hover{border-color:var(--orange);color:var(--orange);}
+.modal-close{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:.85rem;width:100%;}
+.nav-row{display:flex;gap:.6rem;}
+.hist-row{display:grid;grid-template-columns:44px 26px 1fr 42px;gap:.4rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.75rem;}
+.hist-row:last-of-type{border-bottom:none;}
+.hist-date{font-family:var(--mono);color:var(--muted);font-size:.68rem;}
+.hist-stage{font-family:var(--mono);font-weight:700;color:var(--orange);font-size:.68rem;}
+.hist-sets{font-family:var(--mono);font-size:.68rem;}
+.hist-total{font-family:var(--mono);font-weight:700;text-align:right;font-size:.68rem;}
+.empty{text-align:center;color:var(--muted);padding:1.5rem;font-size:.85rem;}
+.export-row{display:flex;gap:.5rem;margin-bottom:.5rem;}
+.export-row .btn{width:auto;flex:1;}
+.reset-btn{background:none;border:none;color:var(--muted);font-size:.7rem;cursor:pointer;text-decoration:underline;margin-top:.8rem;padding:.3rem;display:block;width:100%;}
+.collapsed-body{display:none;}
+@media(max-width:440px){body{padding:1rem .7rem 2rem;}.card-body{padding:1rem 1rem;}.set-input{font-size:.95rem;width:1.8rem;}.stage-name{font-size:1.25rem;}}
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="fadeUp delay-0">
-    <div class="eyebrow">Calisthenics Skill Trainer · v2.0</div>
+<!-- TRACKER -->
+<div class="tracker-screen" id="trackerScreen">
+  <div class="fadeUp d0">
     <h1 class="headline">Human <span class="accent">Flag</span></h1>
-    <div class="sub">17-Stufen-Coaching nach 13 Calisthenics-Coaches.</div>
+    <div class="sub">17 Stufen · Evidenzbasiertes Coaching</div>
   </div>
-
   <div id="alertsContainer"></div>
-
-  <div class="card fadeUp delay-1">
+  <div class="card fadeUp d1">
     <div class="card-header">
       <span class="card-label">Aktuelle Stufe</span>
       <span class="card-count" id="phaseCount"></span>
@@ -675,82 +203,59 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
         </div>
         <button class="stage-arrow" id="nextStageBtn">&#8250;</button>
       </div>
-
       <div class="stage-name" id="stageName"></div>
       <div class="stage-short" id="stageShort"></div>
       <div class="stage-desc" id="stageDesc"></div>
-      <button class="info-btn" id="stageInfoBtn" style="padding:0.4rem 0.8rem; border-radius:8px; margin-bottom:0.8rem">? Vollständige Erklärung</button>
-      <div class="tip-box">
-        <span class="tip-label">Technik</span>
-        <span class="tip-text" id="stageTip"></span>
-      </div>
+      <button class="info-btn" id="stageInfoBtn" style="padding:.4rem .8rem;border-radius:8px;margin-bottom:.8rem">? Vollständige Erklärung</button>
+      <div class="tip-box"><span class="tip-label">Technik</span><span class="tip-text" id="stageTip"></span></div>
       <div class="target-row">
-        <div class="target-box">
-          <div class="target-val" id="targetHold">10s</div>
-          <div class="target-label">Ziel pro Set</div>
-        </div>
-        <div class="target-box">
-          <div class="target-val" id="targetSets">3</div>
-          <div class="target-label">Sets/Seite</div>
-        </div>
-        <div class="target-box">
-          <div class="target-val" id="bestHold">0s</div>
-          <div class="target-label">Dein Rekord</div>
-        </div>
+        <div class="target-box"><div class="target-val" id="targetHold">10s</div><div class="target-label">Ziel/Set</div></div>
+        <div class="target-box"><div class="target-val" id="targetSets">3</div><div class="target-label">Sets/Seite</div></div>
+        <div class="target-box"><div class="target-val" id="bestHold">0s</div><div class="target-label">Rekord</div></div>
       </div>
     </div>
   </div>
-
-  <div class="card fadeUp delay-2" id="trainingCard">
+  <div class="card fadeUp d2">
     <div class="card-header">
       <span class="card-label">Heutige Session</span>
-      <span class="card-count"><span id="totalSec">0</span>s gesamt</span>
+      <span class="card-count"><span id="totalSec">0</span>s</span>
     </div>
     <div class="card-body">
-      <div class="side-toggle" id="sideToggle">
+      <div class="side-toggle">
         <button class="side-btn active" data-side="left">Links <span class="count" id="leftCount">0/3</span></button>
         <button class="side-btn" data-side="right">Rechts <span class="count" id="rightCount">0/3</span></button>
       </div>
-
       <div class="sets-grid" id="setsGrid"></div>
-
       <div class="progress-line">
         <div class="progress-label">
-          <span><span id="validCount">0</span> / <span id="validTarget">3</span> valide Sets <span id="currentSideLabel">links</span></span>
-          <span class="ready-badge" id="readyBadge" style="display:none">● Beide Seiten erreicht</span>
+          <span><span id="validCount">0</span>/<span id="validTarget">3</span> valide <span id="currentSideLabel">links</span></span>
+          <span class="ready-badge" id="readyBadge" style="display:none">&#10003; Beide Seiten erreicht</span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       </div>
-
       <div id="symmetryDisplay" style="display:none">
-        <div class="progress-label" style="margin-bottom:0">
-          <span>L/R-Symmetrie</span>
-          <span id="symmetryStatus"></span>
-        </div>
+        <div class="progress-label" style="margin-bottom:0"><span>L/R-Symmetrie</span><span id="symmetryStatus"></span></div>
         <div class="symmetry-bar">
-          <div class="sym-left" id="symLeft">L 0s</div>
-          <div class="sym-right" id="symRight">R 0s</div>
+          <div class="sym-left" id="symLeft" style="width:50%">L 0s</div>
+          <div class="sym-right" id="symRight" style="width:50%">R 0s</div>
         </div>
       </div>
-
-      <button class="btn" id="saveBtn" disabled style="margin-top:0.8rem">Session speichern</button>
+      <button class="btn" id="saveBtn" disabled style="margin-top:.8rem">Session speichern</button>
+      <button class="btn primary" id="startWorkoutBtn" style="margin-top:.5rem">&#9654; Gef&#252;hrtes Workout starten (~15 Min)</button>
     </div>
   </div>
-
-  <div class="card fadeUp delay-3">
+  <div class="card fadeUp d3">
     <div class="card-header">
-      <span class="card-label">Assistance Work · Heute empfohlen</span>
-      <span class="card-count"><span id="assistDone">0</span> / <span id="assistTotal">5</span></span>
+      <span class="card-label">Assistance &middot; Heute</span>
+      <span class="card-count"><span id="assistDone">0</span>/<span id="assistTotal">12</span></span>
     </div>
     <div class="card-body" id="assistList"></div>
   </div>
-
-  <div class="nav-row fadeUp delay-4">
-    <button class="btn small" id="prevBtn">&#8592; Stufe zurück</button>
-    <button class="btn small" id="nextBtn">Nächste Stufe &#8594;</button>
+  <div class="nav-row fadeUp d4">
+    <button class="btn small" id="prevBtn">&#8592; Stufe zur&#252;ck</button>
+    <button class="btn small" id="nextBtn">N&#228;chste Stufe &#8594;</button>
   </div>
-
-  <div class="card fadeUp delay-5">
+  <div class="card fadeUp d5">
     <div class="card-header" id="histHeader" style="cursor:pointer">
       <span class="card-label">Verlauf (<span id="histCount">0</span>)</span>
       <span class="card-count" id="histToggle">+</span>
@@ -762,784 +267,682 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
         <button class="btn small" id="importTrigger">&#8593; Daten importieren</button>
         <input type="file" id="importFile" accept=".json" style="display:none">
       </div>
-      <button class="reset-btn" id="resetBtn">Alle Daten löschen</button>
+      <button class="reset-btn" id="resetBtn">Alle Daten l&#246;schen</button>
     </div>
   </div>
-
-  <div class="footer">Built with 🧡 by BitUcation · 17 Stufen · v2.0</div>
 </div>
 
+<!-- WORKOUT -->
+<div class="workout-screen" id="workoutScreen">
+  <div class="fadeUp d0" style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h1 class="headline">Work<span class="accent">out</span></h1>
+      <div class="sub">~15 Min &middot; Human Flag Training</div>
+    </div>
+    <button class="btn small" id="exitWorkoutBtn" style="width:auto">&#10005; Beenden</button>
+  </div>
+  <div id="alertsWorkout"></div>
+  <div class="card fadeUp d1">
+    <div class="card-header">
+      <span class="card-label" id="workoutPhaseLabel">Schritt 1</span>
+      <span class="card-count" id="workoutProgressLabel"></span>
+    </div>
+    <div class="card-body">
+      <div class="workout-header">
+        <div class="workout-phase" id="wPhase"></div>
+        <div class="workout-exercise" id="wExercise"></div>
+        <div class="workout-target" id="wTarget"></div>
+      </div>
+      <div id="wSideIndicator" class="side-indicator left" style="display:none">Links</div>
+      <div class="timer-ring">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle class="timer-bg" cx="70" cy="70" r="60"/>
+          <circle class="timer-fill" id="timerCircle" cx="70" cy="70" r="60"/>
+        </svg>
+        <div class="timer-inner">
+          <span class="timer-value" id="timerValue">&#8212;</span>
+          <span class="timer-sub" id="timerSub">eingeben</span>
+        </div>
+      </div>
+      <div class="hold-input-wrap">
+        <input type="number" class="hold-input" id="holdInput" min="0" max="99" inputmode="numeric" placeholder="0">
+        <span class="hold-unit" id="holdUnit">s</span>
+      </div>
+      <div class="set-progress" id="setProgress"></div>
+      <div class="workout-btn-row">
+        <button class="btn small" id="wPrevBtn">&#8592; Zur&#252;ck</button>
+        <button class="btn primary" id="wNextBtn">Best&#228;tigen &#8594;</button>
+      </div>
+    </div>
+  </div>
+  <div class="card fadeUp d2" id="wTipCard">
+    <div class="card-header"><span class="card-label">Technik-Tipp</span></div>
+    <div class="card-body" id="wTipText" style="font-size:.88rem;line-height:1.5;color:var(--muted)"></div>
+  </div>
+</div>
+
+<!-- CONGRATS -->
+<div class="congrats-overlay" id="congratsOverlay">
+  <div class="congrats-box">
+    <div class="congrats-icon">&#127919;</div>
+    <div class="congrats-title" id="congratsTitle">Ziel erreicht!</div>
+    <div class="congrats-sub" id="congratsSub"></div>
+    <button class="btn green-btn" id="congratsNext" style="margin-bottom:.5rem">Weiter &#8594;</button>
+    <button class="btn" id="congratsClose">Nochmal</button>
+  </div>
+</div>
+
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-title" id="modalTitle"></div>
     <div class="modal-sub" id="modalSub"></div>
     <div class="modal-desc" id="modalDesc"></div>
-    <div class="modal-section" id="modalTechniqueWrap" style="display:none">
+    <div class="modal-section" id="modalTechWrap">
       <span class="modal-section-label">Technik</span>
-      <div class="modal-section-text" id="modalTechnique"></div>
+      <div class="modal-section-text" id="modalTech"></div>
     </div>
-    <div class="modal-section" id="modalMistakesWrap" style="display:none">
-      <span class="modal-section-label">Häufige Fehler</span>
+    <div class="modal-section" id="modalMistakesWrap">
+      <span class="modal-section-label">H&#228;ufige Fehler</span>
       <div class="modal-section-text" id="modalMistakes"></div>
     </div>
-    <a class="modal-video-link" id="modalLink" href="#" target="_blank" rel="noopener" style="display:none">
-      <span>▶</span>
-      <span>Tutorial auf YouTube ansehen</span>
+    <a class="modal-video-link" id="modalLink" href="#" target="_blank" rel="noopener">
+      <span>&#9654;</span><span>Tutorial ansehen</span>
     </a>
-    <button class="modal-close" id="modalClose">Schließen</button>
+    <button class="modal-close" id="modalClose">Schlie&#223;en</button>
   </div>
 </div>
 
+</div>
 <script>
-// ============================================================
-// 17-Stufen-Progression nach Coach-Synthese
-// ============================================================
-const STAGES = [
-  // PHASE 1: VORBEREITUNG (Stufe 1-2)
-  { id: 1, phase: 'Vorbereitung', name: 'Hängender Seitenzug', short: 'Hanging Side Pull',
-    desc: 'An der Stange hängen, Schulterblätter aktiv nach unten ziehen, Körper lateral zur Seite kippen (ca. 45°).',
-    targetHold: 15, targetSets: 3, perSide: true,
-    tip: 'Schulter der unteren Hand aktiv depressed halten. Erstes Gefühl für lateralen Push-Pull.',
-    technique: 'Beide Hände greifen über Kopf an die Stange. Linke Hand etwas höher, rechte etwas tiefer. Schulterblätter aktiv nach unten und zusammenziehen. Dann den Körper langsam zur Seite kippen, bis du etwa 45° geneigt bist. Halten, kontrolliert zurück.',
-    mistakes: 'Schultern hochgezogen (klassischer Fehler). Körper nicht stabil, sondern wackelig. Kein bewusster Pull mit der oberen Hand.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 2, phase: 'Vorbereitung', name: 'Foot-Assisted Vertical', short: 'Vertical mit Fuß-Hilfe',
-    desc: 'An vertikaler Stange stehen, Hände in Flag-Griff, Füße bleiben am Boden. Druck-Zug-Mechanismus üben.',
-    targetHold: 30, targetSets: 3, perSide: true,
-    tip: 'Bottom-Arm drückt aktiv weg, Top-Arm zieht zu sich. Wie ein Lenkrad. Füße helfen nur leicht.',
-    technique: 'Steh seitlich an einer vertikalen Stange. Untere Hand auf Hüfthöhe (drückt), obere Hand über Kopf (zieht). Verlagere Gewicht in die Hände, Füße entlasten den Boden nur leicht. Spüre die Kraftrichtungen.',
-    mistakes: 'Ellbogen gebeugt (sehr häufig!). Hände nicht in einer vertikalen Linie. Bottom-Arm passiv.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  // PHASE 2: VERTIKAL (Stufe 3-5)
-  { id: 3, phase: 'Vertikal', name: 'Wall-Walk in Vertikale', short: 'Inverted Support',
-    desc: 'An Sprossenwand seitlich hochgehen, Hüfte über Schultern bringen, Körper vertikal.',
-    targetHold: 15, targetSets: 3, perSide: true,
-    tip: 'Calisthenics Family: "Position muss bequem genug sein, um dabei reden zu können."',
-    technique: 'Greife eine Sprossenwand seitlich. Gehe mit den Füßen Sprosse für Sprosse hoch, bis dein Körper vertikal ist. Hüfte über den Schultern. Halte die Position frei, sobald möglich.',
-    mistakes: 'Hüfte sackt ab. Schulter der unteren Hand kollabiert. Atmung gepresst.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 4, phase: 'Vertikal', name: 'Chamber Hold', short: 'Vertical Flag Down',
-    desc: 'Sprung in Position: Hüfte über Schultern, Knie eng an der Brust. Körper vertikal mit getuckten Beinen.',
-    targetHold: 10, targetSets: 3, perSide: true,
-    tip: 'Al Kavadlo: "Hüfte bleibt knapp über Schulterhöhe, Knie zur Brust." Erster echter Skill.',
-    technique: 'Springe seitlich an die Stange, ziehe die Knie sofort an die Brust und kontrolliere die Vertikale. Hüfte über den Schultern, kompakte Tuck-Position. 10 Sekunden = Schwelle für nächste Stufe.',
-    mistakes: 'Hüfte zu tief. Knie nicht eng genug. Asymmetrischer Griff.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 5, phase: 'Vertikal', name: 'Vertical Flag Hold', short: 'Crooked Handstand',
-    desc: 'Aus Chamber die Beine nach oben strecken. Fast wie ein schräger Handstand.',
-    targetHold: 10, targetSets: 3, perSide: true,
-    tip: 'Kavadlo: "Näher an der Vertikale als an der Horizontale, fast ein schräger Handstand."',
-    technique: 'Aus der Chamber Hold die Beine nach oben strecken. Körper bildet eine fast vertikale Linie. Alles aktiv anspannen: Po, Beine, Core. Schultern stabil halten.',
-    mistakes: 'Beine knicken ein. Hohlkreuz. Schulter der unteren Hand sackt.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  // PHASE 3: TUCK (Stufe 6-9)
-  { id: 6, phase: 'Tuck', name: 'Vertical → Tuck Negative', short: 'Negativ-Bewegung',
-    desc: 'Aus Vertical Flag kontrolliert in Tuck-Position (horizontal) absinken. Langsam und kontrolliert.',
-    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
-    tip: 'Letzte 2 Sekunden in der horizontalen Tuck-Position halten. Bremst, baut Kraft auf.',
-    technique: 'Starte in Vertical Flag. Senke den Körper über 4-5 Sekunden kontrolliert ab, bis du horizontal in Tuck-Position bist. Die letzten 2 Sekunden in der horizontalen Endposition halten.',
-    mistakes: 'Zu schnelles Absinken (Schwerkraft macht die Arbeit). Hüfte fällt durch. Verlust der Tuck-Position.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 7, phase: 'Tuck', name: 'Tuck Flag', short: 'Knie an Brust horizontal',
-    desc: 'Beide Knie eng an der Brust gezogen, Körper horizontal. Erster echter Flag.',
-    targetHold: 10, targetSets: 3, perSide: true,
-    tip: 'Calisthenics Family: "Knie zwischen die Ellbogen klemmen." Kompaktheit ist alles.',
-    technique: 'Aus Sprung oder Negative in horizontale Position, Knie sofort an die Brust. Körper bildet eine Linie parallel zum Boden. Alles unter Spannung. Erst nach 10s sicher: nächste Stufe.',
-    mistakes: 'Knie nicht eng genug = längerer Hebel = unnötig schwer. Hüfte sackt durch. Kein bewusster Push-Pull.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 8, phase: 'Tuck', name: 'Advanced Tuck Flag', short: 'Schienbeine parallel',
-    desc: 'Knie etwas vom Körper weg, Schienbeine parallel zum Boden.',
-    targetHold: 10, targetSets: 3, perSide: true,
-    tip: 'Bar Brothers Italia: Bewusste Zwischenstufe. Hebel wird länger, aber noch nicht voll.',
-    technique: 'Knie sind etwa 30-45° vom Körper weg. Schienbeine bleiben parallel zum Boden. Mehr Hebel, mehr Spannung im Core.',
-    mistakes: 'Schienbeine kippen ab. Beine driften nach unten. Hüfte sackt.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 9, phase: 'Tuck', name: 'Advanced Tuck Negative', short: 'Negativ aus Advanced Tuck',
-    desc: 'Negative-Brücke zur One-Leg Stufe.',
-    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
-    tip: 'Wichtiger Übergang: Negative trainieren die Position, in die du gleich aktiv kommen musst.',
-    technique: 'Aus Vertical absenken bis in Advanced Tuck Position. 4-5 Sekunden kontrolliert. In der Endposition kurz halten.',
-    mistakes: 'Zu schnell. Verlust der Beinposition. Hüfte als erstes durch.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  // PHASE 4: ONE-LEG & STRADDLE (Stufe 10-13)
-  { id: 10, phase: 'One-Leg', name: 'One-Leg Flag', short: 'Ein Bein gestreckt',
-    desc: 'Oberes Bein gestreckt, unteres Bein getuckt. Hebel kürzer als Full.',
-    targetHold: 8, targetSets: 3, perSide: true,
-    tip: 'Eric Flag: "Oberschenkel senkrecht halten, Bein gerade strecken."',
-    technique: 'In Tuck-Position kommen, dann ein Bein langsam strecken. Welches Bein gestreckt wird, entscheidet die Seite. Hüfte bleibt waagerecht trotz Hebel-Asymmetrie.',
-    mistakes: 'Hüfte rotiert mit dem gestreckten Bein. Bein nicht voll gestreckt. Tuck-Bein driftet.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 11, phase: 'One-Leg', name: 'One-Leg Negative', short: 'Negativ aus One-Leg',
-    desc: 'Brücke zur Straddle-Stufe.',
-    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
-    tip: 'Antranik: Immer mit der schwächeren Seite anfangen, sonst ermüdet sie zu sehr.',
-    technique: 'Aus Vertical absinken in One-Leg Position, kontrolliert. In der Endposition 1-2 Sekunden halten.',
-    mistakes: 'Schwerere Seite überlasten. Bein nicht gestreckt halten.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 12, phase: 'Straddle', name: 'Straddle Flag', short: 'Beine gespreizt',
-    desc: 'Beide Beine gestreckt und weit gespreizt. Körper horizontal.',
-    targetHold: 8, targetSets: 3, perSide: true,
-    tip: 'Calisthenics Family: "Core extra anspannen, Beine bewusst weit vom Körper wegdrücken."',
-    technique: 'Aus Tuck oder One-Leg in Straddle übergehen. Beide Beine maximal gespreizt strecken. Das Spreizen verkürzt den effektiven Hebel etwas.',
-    mistakes: 'Beine nicht aktiv auseinander gepresst. Hüfte sackt. Atmung blockiert.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 13, phase: 'Straddle', name: 'Straddle Negative', short: 'Negativ aus Straddle',
-    desc: 'Brücke zur Half-Lay Stufe.',
-    targetHold: 5, targetSets: 5, perSide: true, isNegative: true,
-    tip: 'Langsamer als bei vorherigen Negatives. Mehr Hebel = mehr Last.',
-    technique: 'Aus Vertical absinken in Straddle. 5-6 Sekunden kontrolliert. Beine bleiben aktiv gespreizt.',
-    mistakes: 'Zu schnell. Beine schließen sich aus Schwäche. Hüfte gibt nach.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  // PHASE 5: FULL (Stufe 14-17)
-  { id: 14, phase: 'Full', name: 'Half-Lay Flag', short: 'Hüfte leicht abgesenkt',
-    desc: 'Beine geschlossen aber Hüfte noch leicht abgesenkt (nicht ganz horizontal).',
-    targetHold: 6, targetSets: 3, perSide: true,
-    tip: 'BERG Movement: "Unverzichtbarer Schritt vor jeder Full-Variante."',
-    technique: 'Beine schließen, gestreckt. Hüfte etwas tiefer als die Schulter-Linie. Bewusst eine Stufe vor der Full halten, statt direkt zu kämpfen.',
-    mistakes: 'Zu früh Full erzwingen. Hüfte zu tief. Beine nicht zusammen.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 15, phase: 'Full', name: 'Full Human Flag', short: 'Endform',
-    desc: 'Beide Beine gestreckt und geschlossen. Körper komplett horizontal.',
-    targetHold: 5, targetSets: 3, perSide: true,
-    tip: 'Eric Flag: "5 saubere Sekunden = Skill beherrscht."',
-    technique: 'Aus Negative oder Sprung in horizontale Position. Beine zusammen, gestreckt. Po, Quadrizeps, Adduktoren, Core, Lats: alles unter maximaler Spannung. Atmung nicht vergessen.',
-    mistakes: 'Beine driften nach unten. Hüfte rotiert. Asymmetrischer Druck. Atem anhalten.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 16, phase: 'Full', name: 'Full Flag Strong Hold', short: 'Längere Holds',
-    desc: 'Full Flag auf Zeit ausbauen. Mastery-Stufe.',
-    targetHold: 15, targetSets: 3, perSide: true,
-    tip: 'Drew Murphy: 30s als persönliches Milestone. Ab 15s wird es zur Mastery.',
-    technique: 'Selbe Position wie Full Flag, aber deutlich länger halten. Atmung jetzt entscheidend. Eventuell dünnere Stange für mehr Herausforderung.',
-    mistakes: 'Atem pressen. Form verlieren zugunsten der Zeit. Asymmetrie zwischen Seiten ignorieren.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  },
-  { id: 17, phase: 'Full', name: 'Dynamic Flag / Flag Press', short: 'Hochdrücken in Flag',
-    desc: 'Aus tiefer Position in Flag hochdrücken oder Flag Raises mit Wiederholungen.',
-    targetHold: 5, targetSets: 3, perSide: true, isReps: true,
-    tip: 'Eric Flag: "Vom Boden hoch ist deutlich schwerer als vom Top absenken."',
-    technique: 'Flag Raise: Aus hängender Position das Becken seitwärts hochziehen in Full Flag. Oder Flag Press: Aus vertikaler Position seitwärts in Flag pressen. Reps statt Hold-Zeit.',
-    mistakes: 'Schwung statt Kraft. Hüfte rotiert beim Hochdrücken. Negative-Phase vergessen.',
-    video: 'https://www.youtube.com/watch?v=lczvDH9Fze4'
-  }
+const STAGES=[
+  {id:1,phase:'Vorbereitung',name:'H\xe4ngender Seitenzug',short:'Hanging Side Pull',
+   desc:'An der Stange h\xe4ngen, Schulterbl\xe4tter aktiv nach unten, K\xf6rper lateral ~45\xb0 kippen.',
+   targetHold:15,targetSets:3,perSide:true,
+   tip:'Schulter der unteren Hand aktiv depressed halten. Erstes Gef\xfchl f\xfcr lateralen Push-Pull.',
+   technique:'Beide H\xe4nde greifen \xfcber Kopf an die Stange. Schulterbl\xe4tter aktiv nach unten und zusammenziehen. K\xf6rper langsam zur Seite kippen bis ~45\xb0. Halten, kontrolliert zur\xfcck.',
+   mistakes:'Schultern hochgezogen. K\xf6rper wackelig. Kein bewusster Pull mit der oberen Hand.',
+   video:'https://www.youtube.com/shorts/R7sqe83XsRY'},
+  {id:2,phase:'Vorbereitung',name:'Foot-Assisted Vertical',short:'Vertical mit Fu\xdf-Hilfe',
+   desc:'An vertikaler Stange, H\xe4nde in Flag-Griff, F\xfc\xdfe leicht am Boden. Push-Pull lernen.',
+   targetHold:30,targetSets:3,perSide:true,
+   tip:'Bottom-Arm dr\xfcckt aktiv weg, Top-Arm zieht. Wie ein Lenkrad. F\xfc\xdfe nur minimal belasten.',
+   technique:'Seitlich an einer vertikalen Stange stehen. Untere Hand auf H\xfcfth\xf6he (dr\xfcckt), obere Hand \xfcberkopf (zieht). Gewicht langsam in die H\xe4nde verlagern, F\xfc\xdfe entlasten.',
+   mistakes:'Ellbogen gebeugt. H\xe4nde nicht vertikal \xfcbereinander. Bottom-Arm passiv.',
+   video:'https://www.youtube.com/shorts/OVKx796oWp8'},
+  {id:3,phase:'Vertikal',name:'Wall-Walk in Vertikale',short:'Inverted Support',
+   desc:'An Sprossenwand seitlich hochgehen, H\xfcfte \xfcber Schultern bringen, K\xf6rper vertikal.',
+   targetHold:15,targetSets:3,perSide:true,
+   tip:'CF: "Position muss bequem genug sein, um dabei reden zu k\xf6nnen."',
+   technique:'Greife eine Sprossenwand seitlich. Gehe mit den F\xfc\xdfen Sprosse f\xfcr Sprosse hoch bis der K\xf6rper vertikal steht. H\xfcfte \xfcber den Schultern halten.',
+   mistakes:'H\xfcfte sackt ab. Schulter der unteren Hand kollabiert. Atmung gepresst.',
+   video:'https://www.youtube.com/watch?v=VA4l6FIOMyI'},
+  {id:4,phase:'Vertikal',name:'Chamber Hold',short:'Vertical Flag Down',
+   desc:'Sprung in Position: H\xfcfte \xfcber Schultern, Knie eng an der Brust. K\xf6rper vertikal.',
+   targetHold:10,targetSets:3,perSide:true,
+   tip:'Al Kavadlo: "H\xfcfte bleibt knapp \xfcber Schulterh\xf6he, Knie zur Brust." Erster echter Skill.',
+   technique:'Springe seitlich an die Stange, ziehe die Knie sofort an die Brust. H\xfcfte \xfcber den Schultern. 10 Sekunden = Schwelle f\xfcr n\xe4chste Stufe.',
+   mistakes:'H\xfcfte zu tief. Knie nicht eng genug. Asymmetrischer Griff.',
+   video:'https://www.youtube.com/watch?v=vuK_gqhHUQg'},
+  {id:5,phase:'Vertikal',name:'Vertical Flag Hold',short:'Crooked Handstand',
+   desc:'Aus Chamber die Beine nach oben strecken. Fast wie ein schr\xe4ger Handstand.',
+   targetHold:10,targetSets:3,perSide:true,
+   tip:'Kavadlo: "N\xe4her an der Vertikale als an der Horizontale \u2014 fast ein schr\xe4ger Handstand."',
+   technique:'Aus Chamber Hold die Beine nach oben strecken. K\xf6rper bildet fast vertikale Linie. Po, Beine, Core aktiv anspannen.',
+   mistakes:'Beine knicken ein. Hohlkreuz. Schulter der unteren Hand sackt.',
+   video:'https://www.youtube.com/watch?v=VA4l6FIOMyI'},
+  {id:6,phase:'Tuck',name:'Vertical \u2192 Tuck Negative',short:'Negativ-Bewegung',
+   desc:'Aus Vertical Flag kontrolliert in Tuck-Position (horizontal) absinken.',
+   targetHold:5,targetSets:5,perSide:true,isNegative:true,
+   tip:'Letzte 2s in der horizontalen Tuck-Position halten. Langsamer Abstieg = mehr Kraftgewinn.',
+   technique:'Starte in Vertical Flag. K\xf6rper \xfcber 4-5s kontrolliert horizontal absinken lassen. In der Tuck-Endposition 2s halten.',
+   mistakes:'Zu schnelles Absinken. H\xfcfte f\xe4llt durch. Verlust der Tuck-Position.',
+   video:'https://www.youtube.com/shorts/X-tIRBVDDzo'},
+  {id:7,phase:'Tuck',name:'Tuck Flag',short:'Knie an Brust horizontal',
+   desc:'Beide Knie eng an der Brust, K\xf6rper horizontal. Erster echter horizontaler Flag.',
+   targetHold:10,targetSets:3,perSide:true,
+   tip:'CF: "Knie zwischen die Ellbogen klemmen." Kompaktheit ist alles.',
+   technique:'Aus Sprung oder Negative in horizontale Position. Knie sofort an die Brust. K\xf6rper parallel zum Boden. Alles unter Spannung.',
+   mistakes:'Knie nicht eng genug. H\xfcfte sackt durch. Kein bewusster Push-Pull.',
+   video:'https://www.youtube.com/watch?v=1ledHjcvets'},
+  {id:8,phase:'Tuck',name:'Advanced Tuck Flag',short:'Schienbeine parallel',
+   desc:'Knie etwas vom K\xf6rper weg, Schienbeine parallel zum Boden.',
+   targetHold:10,targetSets:3,perSide:true,
+   tip:'Bar Brothers: Bewusste Zwischenstufe. Hebel wird l\xe4nger, aber noch nicht voll.',
+   technique:'Knie etwa 30-45\xb0 vom K\xf6rper weg. Schienbeine bleiben parallel zum Boden. Mehr Core-Spannung als beim Tuck.',
+   mistakes:'Schienbeine kippen ab. Beine driften nach unten. H\xfcfte sackt.',
+   video:'https://www.youtube.com/shorts/X-tIRBVDDzo'},
+  {id:9,phase:'Tuck',name:'Advanced Tuck Negative',short:'Negativ aus Advanced Tuck',
+   desc:'Negative-Br\xfccke zwischen Advanced Tuck und One-Leg.',
+   targetHold:5,targetSets:5,perSide:true,isNegative:true,
+   tip:'Antranik: Immer mit der schw\xe4cheren Seite anfangen.',
+   technique:'Aus Vertical in Advanced Tuck Position absenken. 4-5s kontrolliert. In Endposition kurz halten.',
+   mistakes:'Zu schnell. Verlust der Beinposition. H\xfcfte als erstes durch.',
+   video:'https://www.youtube.com/shorts/X-tIRBVDDzo'},
+  {id:10,phase:'One-Leg',name:'One-Leg Flag',short:'Ein Bein gestreckt',
+   desc:'Oberes Bein gestreckt, unteres Bein getuckt. K\xfcrzerer Hebel als Full.',
+   targetHold:8,targetSets:3,perSide:true,
+   tip:'Eric Flag: "Oberschenkel senkrecht halten, Bein gerade strecken."',
+   technique:'Aus Tuck ein Bein langsam strecken. H\xfcfte bleibt waagerecht trotz Asymmetrie.',
+   mistakes:'H\xfcfte rotiert mit dem gestreckten Bein. Bein nicht voll gestreckt.',
+   video:'https://www.youtube.com/shorts/QNwJZQcMu1E'},
+  {id:11,phase:'One-Leg',name:'One-Leg Negative',short:'Negativ aus One-Leg',
+   desc:'Exzentrische Br\xfccke zur Straddle-Stufe.',
+   targetHold:5,targetSets:5,perSide:true,isNegative:true,
+   tip:'Antranik: Schw\xe4chere Seite zuerst, sonst erm\xfcdet sie zu sehr.',
+   technique:'Aus Vertical absinken in One-Leg Position. Kontrolliert 4-5s. In Endposition 1-2s halten.',
+   mistakes:'Schwerere Seite \xfcberlasten. Bein nicht gestreckt halten.',
+   video:'https://www.youtube.com/shorts/QNwJZQcMu1E'},
+  {id:12,phase:'Straddle',name:'Straddle Flag',short:'Beine gespreizt',
+   desc:'Beide Beine gestreckt und weit gespreizt, K\xf6rper horizontal.',
+   targetHold:8,targetSets:3,perSide:true,
+   tip:'CF: "Core extra anspannen, Beine bewusst weit vom K\xf6rper wegdr\xfccken."',
+   technique:'Aus Tuck oder One-Leg in Straddle. Beide Beine maximal gespreizt strecken.',
+   mistakes:'Beine nicht aktiv auseinander gepresst. H\xfcfte sackt. Atmung blockiert.',
+   video:'https://www.youtube.com/watch?v=JkRMxxjh0IY'},
+  {id:13,phase:'Straddle',name:'Straddle Negative',short:'Negativ aus Straddle',
+   desc:'Exzentrische Br\xfccke zur Half-Lay Stufe.',
+   targetHold:5,targetSets:5,perSide:true,isNegative:true,
+   tip:'Langsamer als vorherige Negatives. Mehr Hebel = mehr Last.',
+   technique:'Aus Vertical in Straddle absenken. 5-6s kontrolliert. Beine bleiben aktiv gespreizt.',
+   mistakes:'Zu schnell. Beine schlie\xdfen sich aus Schw\xe4che. H\xfcfte gibt nach.',
+   video:'https://www.youtube.com/watch?v=JkRMxxjh0IY'},
+  {id:14,phase:'Full',name:'Half-Lay Flag',short:'H\xfcfte leicht abgesenkt',
+   desc:'Beine geschlossen, H\xfcfte noch leicht unterhalb der Schulterlinie.',
+   targetHold:6,targetSets:3,perSide:true,
+   tip:'BERG Movement: "Unverzichtbarer Schritt vor jeder Full-Variante."',
+   technique:'Beine schlie\xdfen und strecken. H\xfcfte etwas tiefer als Schulterlinie. Bewusst halten statt Full zu erzwingen.',
+   mistakes:'Zu fr\xfch Full erzwingen. H\xfcfte zu tief. Beine nicht zusammen.',
+   video:'https://www.youtube.com/shorts/5qgpgEnjEWI'},
+  {id:15,phase:'Full',name:'Full Human Flag',short:'Endform',
+   desc:'Beide Beine gestreckt und geschlossen, K\xf6rper komplett horizontal.',
+   targetHold:5,targetSets:3,perSide:true,
+   tip:'Eric Flag: "5 saubere Sekunden = Skill beherrscht."',
+   technique:'Aus Negative oder Sprung. Beine zusammen, gestreckt. Po, Quads, Adduktoren, Core, Lats: maximale Spannung. Atmung nicht vergessen.',
+   mistakes:'Beine driften nach unten. H\xfcfte rotiert. Atem anhalten.',
+   video:'https://www.youtube.com/shorts/5qgpgEnjEWI'},
+  {id:16,phase:'Full',name:'Full Flag Strong Hold',short:'L\xe4ngere Holds',
+   desc:'Full Flag auf Zeit ausbauen. Mastery-Stufe.',
+   targetHold:15,targetSets:3,perSide:true,
+   tip:'Drew Murphy: 30s als pers\xf6nliches Milestone. Ab 15s wird es zur Mastery.',
+   technique:'Selbe Position wie Full Flag, aber deutlich l\xe4nger. Atmung entscheidend.',
+   mistakes:'Atem pressen. Form verlieren zugunsten der Zeit. Asymmetrie ignorieren.',
+   video:'https://www.youtube.com/shorts/5qgpgEnjEWI'},
+  {id:17,phase:'Full',name:'Dynamic Flag / Flag Raise',short:'Hochdr\xfccken in Flag',
+   desc:'Aus tiefer Position in Flag hochdr\xfccken oder Flag Raises mit Wiederholungen.',
+   targetHold:3,targetSets:3,perSide:true,isReps:true,
+   tip:'Eric Flag: "Vom Boden hoch ist deutlich schwerer als vom Top absenken."',
+   technique:'Flag Raise: Aus h\xe4ngender Position Becken seitw\xe4rts hochziehen in Full Flag. Reps statt Hold-Zeit.',
+   mistakes:'Schwung statt Kraft. H\xfcfte rotiert beim Hochdr\xfccken.',
+   video:'https://www.youtube.com/watch?v=O-8NIJS-05Q'}
 ];
 
-// ============================================================
-// Assistance-Bibliothek nach 4 Funktionsblöcken
-// ============================================================
-const ASSISTANCE = [
-  // Block A: Laterale Rumpfkraft
-  { id: 'a1', block: 'A', name: 'Side Plank + Reach Overhead', target: '3×30-45s/Seite',
-    desc: 'Side Plank Position halten, oberen Arm gestreckt nach oben über den Kopf reichen. Trainiert die gesamte laterale Kette mit Overhead-Komponente.',
-    technique: 'Stütze auf Unterarm oder Hand, Körper bildet eine seitliche Linie. Oberen Arm gestreckt über den Kopf reichen. Hüfte hoch halten, nicht durchhängen lassen.',
-    video: 'https://www.youtube.com/watch?v=PAD7sMmIgts' },
-  { id: 'a2', block: 'A', name: 'Hanging Windshield Wipers', target: '3×6-8/Seite',
-    desc: 'Hängend an Stange, Beine auf 90° heben, kontrolliert wie ein Scheibenwischer von Seite zu Seite bewegen.',
-    technique: 'An Klimmzugstange hängen, Beine gestreckt oder gebeugt auf 90° heben. Langsam von links nach rechts schwingen. Kein Schwung, alles aus dem Core.',
-    video: 'https://www.youtube.com/watch?v=ygwy2b2marI' },
-  { id: 'a3', block: 'A', name: 'Dragon Flag', target: '3×5 Reps',
-    desc: 'Auf Bank/Boden liegend an Stütze festhalten, ganzen Körper als Brett anheben und absenken.',
-    technique: 'Auf Rücken liegen, hinter Kopf eine Stütze greifen (Bank, Stange). Körper als ein Brett anheben bis fast senkrecht, dann langsam (4-5s) absenken. Schultern bleiben am Boden.',
-    video: 'https://www.youtube.com/watch?v=GilFwwUgrhM' },
-  { id: 'a4', block: 'A', name: 'Side Plank Hip Dip', target: '3×12/Seite',
-    desc: 'Aus Side Plank Hüfte zum Boden absenken und wieder hochheben.',
-    technique: 'Side Plank Position. Hüfte langsam Richtung Boden absenken, dann aktiv wieder hochheben. Kontrolliert, kein Schwung.',
-    video: 'https://www.youtube.com/watch?v=jWiqVrL3JAA' },
-
-  // Block B: Schulter & Push (untere Hand)
-  { id: 'b1', block: 'B', name: 'Pike Push-ups', target: '3×8-10',
-    desc: 'Hüfte hoch, Körper in umgekehrtes V. Trainiert die Schulter-Druckkraft für die untere Hand.',
-    technique: 'Hände schulterbreit, Hüfte hoch, Körper bildet umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, wieder hochdrücken.',
-    video: 'https://www.youtube.com/watch?v=paCOGgmLCA0' },
-  { id: 'b2', block: 'B', name: 'Kettlebell Windmill', target: '3×5/Seite',
-    desc: 'Kettlebell überkopf, langsam zur Seite beugen. StrongFirst-Klassiker für Schulter-Mobility und Stability.',
-    technique: 'Kettlebell überkopf gestreckt, Füße breit. Langsam zur Seite beugen, freie Hand wandert am Bein entlang Richtung Boden. Blick immer auf die Kettlebell. Leicht starten!',
-    video: 'https://www.youtube.com/watch?v=1N1Qs9FO4GU' },
-  { id: 'b3', block: 'B', name: 'Wall Handstand Hold', target: '3×30-45s',
-    desc: 'Handstand an der Wand halten. Baut die Overhead-Schulterstabilität auf.',
-    technique: 'Mit dem Bauch zur Wand hochwalken, oder mit Rücken zur Wand kicken. Körper gestreckt, Schultern aktiv hochdrücken. Stabil halten.',
-    video: 'https://www.youtube.com/watch?v=PKEvWyHk1k4' },
-
-  // Block C: Pull-Kraft (obere Hand)
-  { id: 'c1', block: 'C', name: 'One-Arm Negativklimmzug', target: '3×3-5/Seite',
-    desc: 'Mit beiden Armen hoch, dann einarmig langsam absinken. Baut Pull-Kraft für die obere Hand.',
-    technique: 'Mit beiden Armen hochziehen, dann einen Arm loslassen und einarmig 4-6 Sekunden absinken. Andere Hand kann assistieren.',
-    video: 'https://www.youtube.com/shorts/vcYjMwZ1QD4' },
-  { id: 'c2', block: 'C', name: 'Scapular Pull-Ups', target: '3×10',
-    desc: 'Aus Dead Hang nur die Schulterblätter aktiv nach unten ziehen, ohne Armbeugen.',
-    technique: 'An Stange hängen mit gestreckten Armen. Schulterblätter aktiv depressieren und zusammenziehen. Körper hebt sich minimal an. Ellbogen bleiben gestreckt.',
-    video: 'https://www.youtube.com/watch?v=FgYoc4O-cio' },
-  { id: 'c3', block: 'C', name: 'Archer Pull-Ups', target: '3×5/Seite',
-    desc: 'Klimmzug mit Schwerpunkt auf einer Seite, anderer Arm gestreckt. Brücke zum One-Arm.',
-    technique: 'Wide Grip, hochziehen zu einer Seite, der andere Arm bleibt gestreckt. Dann zur anderen Seite. Brust näher an die Zugseite.',
-    video: 'https://www.youtube.com/watch?v=zffQ4U-XmuI' },
-
-  // Block D: Core / Anti-Rotation
-  { id: 'd1', block: 'D', name: 'Hollow Body Hold', target: '3×30-45s',
-    desc: 'Auf Rücken liegen, Schulterblätter und Beine vom Boden anheben. Ganzkörperspannung.',
-    technique: 'Auf Rücken liegen. Schulterblätter und Beine gleichzeitig anheben, Lendenwirbelsäule fest an den Boden drücken. Arme über Kopf gestreckt.',
-    video: 'https://www.youtube.com/watch?v=44ScXWFaVBs' },
-  { id: 'd2', block: 'D', name: 'L-Sit', target: '3×15-20s',
-    desc: 'An Barren oder am Boden auf Händen abstützen, Beine gestreckt nach vorne anheben.',
-    technique: 'Hände auf Barren oder erhöhte Auflagen. Körper hochstützen, Beine gestreckt vorne anheben bis sie horizontal sind. Schulterblätter depressed.',
-    video: 'https://www.youtube.com/watch?v=IaCqZqGSpgM' }
+const ASSISTANCE=[
+  {id:'a1',block:'A',name:'Side Plank + Reach Overhead',target:'3\xd730-45s/Seite',
+   desc:'Side Plank halten, oberen Arm gestreckt \xfcber den Kopf reichen.',
+   technique:'St\xfctze auf Unterarm oder Hand. Oberen Arm gestreckt \xfcber Kopf reichen. H\xfcfte hoch halten.',
+   video:'https://www.youtube.com/shorts/Qncfhd7rgZo'},
+  {id:'a2',block:'A',name:'Hanging Windshield Wipers',target:'3\xd76-8/Seite',
+   desc:'H\xe4ngend an Stange, Beine auf 90\xb0 heben, Scheibenwischer-Bewegung.',
+   technique:'An Klimmzugstange h\xe4ngen. Beine auf 90\xb0 heben. Langsam von links nach rechts. Kein Schwung.',
+   video:'https://www.youtube.com/shorts/oXuBmKzIIKs'},
+  {id:'a3',block:'A',name:'Dragon Flag',target:'3\xd75 Reps',
+   desc:'Auf Bank liegend K\xf6rper als Brett anheben und absenken.',
+   technique:'Auf R\xfccken liegen, hinter Kopf festhalten. K\xf6rper als Brett anheben bis fast senkrecht, 4-5s absenken. Schultern bleiben unten.',
+   video:'https://www.youtube.com/shorts/RX_FLzq-nXk'},
+  {id:'a4',block:'A',name:'Side Plank Hip Dip',target:'3\xd712/Seite',
+   desc:'Aus Side Plank H\xfcfte absenken und wieder hochheben.',
+   technique:'Side Plank. H\xfcfte langsam Richtung Boden, dann aktiv hochheben. Kontrolliert.',
+   video:'https://www.youtube.com/shorts/4yylMqlnjwU'},
+  {id:'b1',block:'B',name:'Pike Push-ups',target:'3\xd78-10',
+   desc:'H\xfcfte hoch, umgekehrtes V, Schulter-Druckkraft f\xfcr die untere Hand.',
+   technique:'H\xe4nde schulterbreit, H\xfcfte hoch, umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, hochdr\xfccken.',
+   video:'https://www.youtube.com/shorts/0cT6ug3WVn4'},
+  {id:'b2',block:'B',name:'Kettlebell Windmill',target:'3\xd75/Seite',
+   desc:'Kettlebell \xfcberkopf, zur Seite beugen. StrongFirst-Klassiker.',
+   technique:'Kettlebell \xfcberkopf gestreckt. Langsam zur Seite beugen, freie Hand am Bein. Blick auf Kettlebell. Leicht starten!',
+   video:'https://www.youtube.com/watch?v=EZWHnzAjctU'},
+  {id:'b3',block:'B',name:'Wall Handstand Hold',target:'3\xd730-45s',
+   desc:'Handstand an der Wand halten. Overhead-Schulterstabiit\xe4t.',
+   technique:'Mit Bauch zur Wand hochwalken. K\xf6rper gestreckt, Schultern aktiv hochdr\xfccken.',
+   video:'https://www.youtube.com/shorts/5UvQTTGRHmw'},
+  {id:'c1',block:'C',name:'One-Arm Negativklimmzug',target:'3\xd73-5/Seite',
+   desc:'Mit beiden Armen hoch, einarmig langsam absinken.',
+   technique:'Mit beiden Armen hochziehen, dann einen Arm loslassen und einarmig 4-6s absinken.',
+   video:'https://www.youtube.com/shorts/vcYjMwZ1QD4'},
+  {id:'c2',block:'C',name:'Scapular Pull-Ups',target:'3\xd710',
+   desc:'Aus Dead Hang nur Schulterbl\xe4tter aktiv depressieren.',
+   technique:'An Stange h\xe4ngen. Schulterbl\xe4tter aktiv depressieren und zusammenziehen. Ellbogen bleiben gestreckt.',
+   video:'https://www.youtube.com/shorts/qD3shXT3AU8'},
+  {id:'c3',block:'C',name:'Archer Pull-Ups',target:'3\xd75/Seite',
+   desc:'Klimmzug mit Schwerpunkt auf einer Seite, anderer Arm gestreckt.',
+   technique:'Wide Grip, hochziehen zu einer Seite, anderer Arm gestreckt. Brust n\xe4her an die Zugseite.',
+   video:'https://www.youtube.com/shorts/R_drd0U3knE'},
+  {id:'d1',block:'D',name:'Hollow Body Hold',target:'3\xd730-45s',
+   desc:'Schulterbl\xe4tter und Beine anheben. Ganzk\xf6rperspannung.',
+   technique:'Auf R\xfccken. Schulterbl\xe4tter und Beine gleichzeitig anheben. LWS an den Boden. Arme \xfcber Kopf.',
+   video:'https://www.youtube.com/shorts/MY6_stJuy7M'},
+  {id:'d2',block:'D',name:'L-Sit',target:'3\xd715-20s',
+   desc:'An Barren abst\xfctzen, Beine gestreckt horizontal halten.',
+   technique:'H\xe4nde auf Barren. K\xf6rper hochst\xfctzen, Beine gestreckt vorne anheben. Schulterbl\xe4tter depressed.',
+   video:'https://www.youtube.com/shorts/4XGlmKk96Jg'}
 ];
 
-// ============================================================
-// Session-Rotation: Welche Assistance pro Tag empfohlen?
-// ============================================================
-const SESSION_ROTATIONS = [
-  ['a1', 'b1'], // Session 1: Lateral + Push
-  ['a2', 'c1'], // Session 2: Lateral + Pull
-  ['a3', 'b2'], // Session 3: Lateral + Mobility
-  ['a4', 'c2'], // Variant: Hip Dip + Scapular
-  ['a1', 'c3'], // Variant: SP Reach + Archer
-  ['a2', 'd1'], // Variant: Wipers + Hollow
-  ['a3', 'd2']  // Variant: Dragon + L-Sit
-];
+const SESSION_ROTATIONS=[['a1','b1'],['a2','c1'],['a3','b2'],['a4','c2'],['a1','c3'],['a2','d1'],['a3','d2']];
+const STORAGE_KEY='humanflag.v2';
 
-const STORAGE_KEY = 'humanflag.v2';
+let state={currentStage:1,todaySets:{left:[0,0,0,0,0],right:[0,0,0,0,0]},
+  currentSide:'left',assistance:{},sessions:[],sessionCount:0,lastDeloadDate:null};
 
-let state = {
-  currentStage: 1,
-  todaySets: { left: [0,0,0,0,0], right: [0,0,0,0,0] },
-  currentSide: 'left',
-  assistance: {},
-  sessions: [],
-  lastDeloadDate: null,
-  sessionCount: 0
-};
-
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      state = { ...state, ...parsed };
-      if (!state.todaySets || !state.todaySets.left) {
-        state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
-      }
-      if (!state.assistance) state.assistance = {};
-      if (!state.sessions) state.sessions = [];
-      if (!state.currentSide) state.currentSide = 'left';
+function load(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const p=JSON.parse(raw);
+      state={...state,...p};
+      if(!state.todaySets||!state.todaySets.left)state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};
+      if(!state.assistance)state.assistance={};
+      if(!state.sessions)state.sessions=[];
     }
-  } catch (e) { console.error(e); }
+  }catch(e){}
 }
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+function getStage(){return STAGES.find(s=>s.id===state.currentStage)||STAGES[0];}
+function getTodayRotation(){return SESSION_ROTATIONS[state.sessionCount%SESSION_ROTATIONS.length];}
 
-function save() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) { console.error(e); }
-}
-
-function getStage() {
-  return STAGES.find(s => s.id === state.currentStage) || STAGES[0];
-}
-
-function getTodayRotation() {
-  const idx = state.sessionCount % SESSION_ROTATIONS.length;
-  return SESSION_ROTATIONS[idx];
-}
-
-// ============================================================
-// Alerts: Symmetrie, Deload, Stagnation
-// ============================================================
-function checkAlerts() {
-  const alerts = [];
-  const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
-  
-  // 1. Symmetrie-Warnung
-  if (stageSessions.length >= 2) {
-    const recentSessions = stageSessions.slice(0, 5);
-    let totalLeft = 0, totalRight = 0, count = 0;
-    recentSessions.forEach(s => {
-      if (s.leftTotal !== undefined && s.rightTotal !== undefined) {
-        totalLeft += s.leftTotal;
-        totalRight += s.rightTotal;
-        count++;
-      }
-    });
-    if (count > 0 && totalLeft > 0 && totalRight > 0) {
-      const max = Math.max(totalLeft, totalRight);
-      const min = Math.min(totalLeft, totalRight);
-      const diff = ((max - min) / max) * 100;
-      if (diff > 20) {
-        const weakSide = totalLeft < totalRight ? 'linke' : 'rechte';
-        alerts.push({
-          type: 'orange',
-          icon: '⚖',
-          title: 'Symmetrie-Warnung',
-          text: `Deine ${weakSide} Seite ist ${Math.round(diff)}% schwächer. Antranik-Regel: Mit der schwächeren Seite anfangen und 1-2 Sätze mehr.`
-        });
-      }
+function buildAlerts(){
+  const alerts=[];
+  const stageSess=state.sessions.filter(s=>s.stage===state.currentStage);
+  if(stageSess.length>=2){
+    const recent=stageSess.slice(0,5);
+    let lT=0,rT=0,cnt=0;
+    recent.forEach(s=>{if(s.leftTotal!==undefined){lT+=s.leftTotal;rT+=s.rightTotal;cnt++;}});
+    if(cnt>0&&lT>0&&rT>0){
+      const mx=Math.max(lT,rT),mn=Math.min(lT,rT),diff=((mx-mn)/mx)*100;
+      if(diff>20){const w=lT<rT?'linke':'rechte';
+        alerts.push({type:'orange',icon:'\u2696',title:'Symmetrie-Warnung',
+          text:'Deine '+w+' Seite ist '+Math.round(diff)+'% schw\xe4cher. Schw\xe4chere Seite zuerst, 1-2 S\xe4tze mehr.'});}
     }
   }
-  
-  // 2. Stagnation (4+ Wochen auf gleicher Stufe)
-  if (stageSessions.length >= 8) {
-    const oldest = new Date(stageSessions[stageSessions.length - 1].date);
-    const daysSince = (Date.now() - oldest.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysSince > 28) {
-      alerts.push({
-        type: 'orange',
-        icon: '⏸',
-        title: 'Stagnation erkannt',
-        text: `Du arbeitest seit ${Math.round(daysSince)} Tagen an Stufe ${state.currentStage}. Check: Sind deine Pull-Ups & Pike Push-ups in den letzten Wochen gestiegen? Falls nicht, ist die Assistance der Engpass.`
-      });
-    }
+  if(stageSess.length>=8){
+    const oldest=new Date(stageSess[stageSess.length-1].date);
+    const days=(Date.now()-oldest.getTime())/86400000;
+    if(days>28)alerts.push({type:'orange',icon:'\u23f8',title:'Stagnation erkannt',
+      text:Math.round(days)+' Tage auf Stufe '+state.currentStage+'. Check: Pull-Ups & Pike Push-ups Fortschritt?'});
   }
-  
-  // 3. Deload-Reminder (alle 5-6 Wochen = ~15-18 Sessions)
-  const lastDeload = state.lastDeloadDate ? new Date(state.lastDeloadDate) : null;
-  const sessionsSinceDeload = lastDeload 
-    ? state.sessions.filter(s => new Date(s.date) > lastDeload).length
-    : state.sessions.length;
-  if (sessionsSinceDeload >= 15) {
-    alerts.push({
-      type: 'orange',
-      icon: '🔄',
-      title: 'Deload-Empfehlung',
-      text: `Du hast ${sessionsSinceDeload} Sessions seit dem letzten Deload. Empfehlung: 1 Woche mit halbiertem Volumen, nur 2 Stufen unter deiner aktuellen. Hilft den Schultern und beschleunigt den Progress.`
-    });
-  }
-  
-  // 4. Aufstieg möglich
-  const stage = getStage();
-  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
-  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
-  if (leftValid >= stage.targetSets && rightValid >= stage.targetSets && state.currentStage < 17) {
-    alerts.push({
-      type: 'green',
-      icon: '✓',
-      title: 'Bereit für Stufe ' + (state.currentStage + 1),
-      text: `Beide Seiten erreichen das Ziel von ${stage.targetSets}×${stage.targetHold}s. Speichere die Session und steige auf!`
-    });
-  }
-  
+  const sinceDL=state.lastDeloadDate
+    ?state.sessions.filter(s=>new Date(s.date)>new Date(state.lastDeloadDate)).length
+    :state.sessions.length;
+  if(sinceDL>=15)alerts.push({type:'orange',icon:'\ud83d\udd04',title:'Deload-Empfehlung',
+    text:sinceDL+' Sessions seit letztem Deload. 1 Woche halbiertes Volumen, 2 Stufen tiefer.'});
+  const stage=getStage();
+  const lv=state.todaySets.left.filter(s=>parseInt(s)>=stage.targetHold).length;
+  const rv=state.todaySets.right.filter(s=>parseInt(s)>=stage.targetHold).length;
+  if(lv>=stage.targetSets&&rv>=stage.targetSets&&state.currentStage<17)
+    alerts.push({type:'green',icon:'\u2713',title:'Bereit f\xfcr Stufe '+(state.currentStage+1),
+      text:'Beide Seiten erreichen '+stage.targetSets+'\xd7'+stage.targetHold+'s. Session speichern und aufsteigen!'});
   return alerts;
 }
-
-function renderAlerts() {
-  const container = document.getElementById('alertsContainer');
-  const alerts = checkAlerts();
-  container.innerHTML = '';
-  alerts.forEach(a => {
-    const div = document.createElement('div');
-    div.className = `alert alert-${a.type} fadeUp`;
-    div.innerHTML = `
-      <div class="alert-icon">${a.icon}</div>
-      <div class="alert-content">
-        <div class="alert-title">${a.title}</div>
-        <div>${a.text}</div>
-      </div>
-    `;
-    container.appendChild(div);
+function renderAlerts(cid){
+  const c=document.getElementById(cid);c.innerHTML='';
+  buildAlerts().forEach(a=>{
+    const d=document.createElement('div');d.className='alert alert-'+a.type;
+    d.innerHTML='<div class="alert-icon">'+a.icon+'</div><div class="alert-content"><div class="alert-title">'+a.title+'</div><div>'+a.text+'</div></div>';
+    c.appendChild(d);
   });
 }
 
-// ============================================================
-// Render
-// ============================================================
-function render() {
-  const stage = getStage();
-  
-  // Header
-  document.getElementById('stageNum').textContent = state.currentStage;
-  document.getElementById('phaseLabel').textContent = stage.phase + '-Phase';
-  document.getElementById('phaseCount').textContent = stage.phase;
-  document.getElementById('stageName').textContent = stage.name;
-  document.getElementById('stageShort').textContent = stage.short;
-  document.getElementById('stageDesc').textContent = stage.desc;
-  document.getElementById('stageTip').textContent = stage.tip;
-  
-  const targetUnit = stage.isReps ? ' Reps' : 's';
-  document.getElementById('targetHold').textContent = stage.targetHold + targetUnit;
-  document.getElementById('targetSets').textContent = stage.targetSets;
-  
-  // Best hold across both sides
-  const stageSessions = state.sessions.filter(s => s.stage === state.currentStage);
-  let bestHold = 0;
-  stageSessions.forEach(s => {
-    if (s.leftSets) s.leftSets.forEach(v => { if (v > bestHold) bestHold = v; });
-    if (s.rightSets) s.rightSets.forEach(v => { if (v > bestHold) bestHold = v; });
-    if (s.sets) s.sets.forEach(v => { if (v > bestHold) bestHold = v; }); // backward compat
+function render(){
+  const stage=getStage();
+  document.getElementById('stageNum').textContent=state.currentStage;
+  document.getElementById('phaseLabel').textContent=stage.phase+'-Phase';
+  document.getElementById('phaseCount').textContent=stage.phase;
+  document.getElementById('stageName').textContent=stage.name;
+  document.getElementById('stageShort').textContent=stage.short;
+  document.getElementById('stageDesc').textContent=stage.desc;
+  document.getElementById('stageTip').textContent=stage.tip;
+  const unit=stage.isReps?'r':'s';
+  document.getElementById('targetHold').textContent=stage.targetHold+unit;
+  document.getElementById('targetSets').textContent=stage.targetSets;
+  let best=0;
+  state.sessions.filter(s=>s.stage===state.currentStage).forEach(s=>{
+    (s.leftSets||[]).forEach(v=>{if(v>best)best=v;});
+    (s.rightSets||[]).forEach(v=>{if(v>best)best=v;});
+    (s.sets||[]).forEach(v=>{if(v>best)best=v;});
   });
-  document.getElementById('bestHold').textContent = bestHold + 's';
-  
-  // Side toggle
-  document.querySelectorAll('.side-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.side === state.currentSide);
+  const bEl=document.getElementById('bestHold');
+  bEl.textContent=best+'s';
+  bEl.className='target-val'+(best>=stage.targetHold&&best>0?' achieved':'');
+  const lv=state.todaySets.left.filter(s=>parseInt(s)>=stage.targetHold).length;
+  const rv=state.todaySets.right.filter(s=>parseInt(s)>=stage.targetHold).length;
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.toggle('active',b.dataset.side===state.currentSide));
+  document.getElementById('leftCount').textContent=lv+'/'+stage.targetSets;
+  document.getElementById('rightCount').textContent=rv+'/'+stage.targetSets;
+  const curSets=state.todaySets[state.currentSide];
+  const grid=document.getElementById('setsGrid');grid.innerHTML='';
+  curSets.forEach((val,idx)=>{
+    const box=document.createElement('div');box.className='set-box';
+    box.innerHTML='<div class="set-label">Set '+(idx+1)+'</div><div class="set-input-wrap"><input type="number" min="0" max="99" inputmode="numeric" value="'+(val||'')+'" placeholder="0" class="set-input'+(val>=stage.targetHold&&val>0?' valid':'')+'" data-idx="'+idx+'"><span class="set-unit">'+unit+'</span></div>';
+    grid.appendChild(box);
   });
-  
-  // Update side counts
-  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
-  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
-  document.getElementById('leftCount').textContent = `${leftValid}/${stage.targetSets}`;
-  document.getElementById('rightCount').textContent = `${rightValid}/${stage.targetSets}`;
-  
-  // Sets grid (for current side)
-  const currentSets = state.todaySets[state.currentSide];
-  const setsGrid = document.getElementById('setsGrid');
-  setsGrid.innerHTML = '';
-  currentSets.forEach((val, idx) => {
-    const box = document.createElement('div');
-    box.className = 'set-box';
-    box.innerHTML = `
-      <div class="set-label">Set ${idx + 1}</div>
-      <div class="set-input-wrap">
-        <input type="number" min="0" max="99" inputmode="numeric"
-               value="${val || ''}" placeholder="0"
-               class="set-input ${val >= stage.targetHold && val > 0 ? 'valid' : ''}"
-               data-idx="${idx}">
-        <span class="set-unit">${stage.isReps ? 'r' : 's'}</span>
-      </div>
-    `;
-    setsGrid.appendChild(box);
-  });
-  setsGrid.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', e => {
-      const idx = parseInt(e.target.dataset.idx);
-      let v = parseInt(e.target.value) || 0;
-      v = Math.max(0, Math.min(99, v));
-      state.todaySets[state.currentSide][idx] = v;
-      save();
-      updateProgress();
-      renderAlerts();
+  grid.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const idx=parseInt(e.target.dataset.idx);
+      let v=Math.max(0,Math.min(99,parseInt(e.target.value)||0));
+      state.todaySets[state.currentSide][idx]=v;
+      save();updateProgress();renderAlerts('alertsContainer');
     });
   });
-  
   updateProgress();
-  
-  // Symmetrie-Display
-  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const symDisplay = document.getElementById('symmetryDisplay');
-  if (leftTotal > 0 || rightTotal > 0) {
-    symDisplay.style.display = 'block';
-    const total = leftTotal + rightTotal;
-    const leftPct = total > 0 ? (leftTotal / total) * 100 : 50;
-    document.getElementById('symLeft').style.width = leftPct + '%';
-    document.getElementById('symRight').style.width = (100 - leftPct) + '%';
-    document.getElementById('symLeft').textContent = `L ${leftTotal}s`;
-    document.getElementById('symRight').textContent = `R ${rightTotal}s`;
-    
-    if (leftTotal > 0 && rightTotal > 0) {
-      const max = Math.max(leftTotal, rightTotal);
-      const min = Math.min(leftTotal, rightTotal);
-      const diff = Math.round(((max - min) / max) * 100);
-      const status = document.getElementById('symmetryStatus');
-      if (diff > 20) {
-        status.textContent = `${diff}% Unterschied ⚠`;
-        status.style.color = 'var(--red)';
-      } else if (diff > 10) {
-        status.textContent = `${diff}% Unterschied`;
-        status.style.color = 'var(--orange)';
-      } else {
-        status.textContent = `${diff}% ✓ Symmetrisch`;
-        status.style.color = 'var(--green)';
-      }
+  const lT=state.todaySets.left.reduce((a,b)=>a+(parseInt(b)||0),0);
+  const rT=state.todaySets.right.reduce((a,b)=>a+(parseInt(b)||0),0);
+  const symD=document.getElementById('symmetryDisplay');
+  if(lT>0||rT>0){
+    symD.style.display='block';
+    const tot=lT+rT,lp=tot>0?(lT/tot)*100:50;
+    document.getElementById('symLeft').style.width=lp+'%';
+    document.getElementById('symRight').style.width=(100-lp)+'%';
+    document.getElementById('symLeft').textContent='L '+lT+'s';
+    document.getElementById('symRight').textContent='R '+rT+'s';
+    if(lT>0&&rT>0){
+      const mx=Math.max(lT,rT),mn=Math.min(lT,rT),diff=Math.round(((mx-mn)/mx)*100);
+      const sEl=document.getElementById('symmetryStatus');
+      if(diff>20){sEl.textContent=diff+'% \u26a0';sEl.style.color='var(--red)';}
+      else if(diff>10){sEl.textContent=diff+'%';sEl.style.color='var(--orange)';}
+      else{sEl.textContent=diff+'% \u2713';sEl.style.color='var(--green)';}
     }
-  } else {
-    symDisplay.style.display = 'none';
-  }
-  
-  // Assistance
-  const todayRotation = getTodayRotation();
-  const assistList = document.getElementById('assistList');
-  assistList.innerHTML = '';
-  
-  // Sortiere: empfohlene zuerst
-  const sorted = [...ASSISTANCE].sort((a, b) => {
-    const aRec = todayRotation.includes(a.id) ? 0 : 1;
-    const bRec = todayRotation.includes(b.id) ? 0 : 1;
-    return aRec - bRec;
+  }else symD.style.display='none';
+  const rot=getTodayRotation();
+  const list=document.getElementById('assistList');list.innerHTML='';
+  [...ASSISTANCE].sort((a,b)=>(rot.includes(a.id)?0:1)-(rot.includes(b.id)?0:1)).forEach(a=>{
+    const isRec=rot.includes(a.id);
+    let bestA=0;
+    state.sessions.forEach(s=>{if(s.assistBests&&s.assistBests[a.id]&&s.assistBests[a.id]>bestA)bestA=s.assistBests[a.id];});
+    const row=document.createElement('div');
+    row.className='assist-row'+(state.assistance[a.id]?' done':'')+(isRec?' recommended':'');
+    row.innerHTML='<div class="checkbox">'+(state.assistance[a.id]?'<span class="checkmark">\u2713</span>':'')+'</div>'
+      +'<div class="assist-meta"><div class="assist-name">'+a.name+(isRec?'<span class="rec-tag">Heute</span>':'')+'</div>'
+      +'<div class="assist-block">Block '+a.block+' \xb7 '+a.target+'</div>'
+      +(bestA>0?'<div class="assist-best met">Bestzeit: '+bestA+'s</div>':'')
+      +'</div><button class="info-btn" data-aid="'+a.id+'">?</button>';
+    row.querySelector('.info-btn').addEventListener('click',e=>{e.stopPropagation();openAssistModal(a.id);});
+    row.onclick=()=>{state.assistance[a.id]=!state.assistance[a.id];save();render();};
+    list.appendChild(row);
   });
-  
-  sorted.forEach(a => {
-    const isRec = todayRotation.includes(a.id);
-    const row = document.createElement('div');
-    row.className = 'assist-row';
-    if (state.assistance[a.id]) row.classList.add('done');
-    if (isRec) row.classList.add('recommended');
-    row.innerHTML = `
-      <div class="checkbox">${state.assistance[a.id] ? '<span class="checkmark">✓</span>' : ''}</div>
-      <div class="assist-meta">
-        <div class="assist-name">${a.name}${isRec ? '<span class="rec-tag">Heute</span>' : ''}</div>
-        <div class="assist-block">Block ${a.block} · ${a.target}</div>
-      </div>
-      <button class="info-btn" data-key="${a.id}">?</button>
-    `;
-    row.querySelector('.info-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      openAssistModal(a.id);
-    });
-    row.onclick = () => {
-      state.assistance[a.id] = !state.assistance[a.id];
-      save();
-      render();
-    };
-    assistList.appendChild(row);
-  });
-  
-  document.getElementById('assistDone').textContent =
-    Object.values(state.assistance).filter(Boolean).length;
-  document.getElementById('assistTotal').textContent = ASSISTANCE.length;
-  
-  // Nav buttons
-  document.getElementById('prevBtn').disabled = state.currentStage === 1;
-  document.getElementById('nextBtn').disabled = state.currentStage === 17;
-  document.getElementById('prevStageBtn').disabled = state.currentStage === 1;
-  document.getElementById('nextStageBtn').disabled = state.currentStage === 17;
-  
-  renderHistory();
-  renderAlerts();
+  document.getElementById('assistDone').textContent=Object.values(state.assistance).filter(Boolean).length;
+  document.getElementById('assistTotal').textContent=ASSISTANCE.length;
+  document.getElementById('prevBtn').disabled=state.currentStage===1;
+  document.getElementById('nextBtn').disabled=state.currentStage===17;
+  document.getElementById('prevStageBtn').disabled=state.currentStage===1;
+  document.getElementById('nextStageBtn').disabled=state.currentStage===17;
+  renderHistory();renderAlerts('alertsContainer');
 }
 
-function updateProgress() {
-  const stage = getStage();
-  const currentSets = state.todaySets[state.currentSide];
-  const total = currentSets.reduce((a, b) => a + (parseInt(b) || 0), 0);
-  const valid = currentSets.filter(s => parseInt(s) >= stage.targetHold).length;
-  
-  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const grandTotal = leftTotal + rightTotal;
-  
-  document.getElementById('totalSec').textContent = grandTotal;
-  document.getElementById('validCount').textContent = valid;
-  document.getElementById('validTarget').textContent = stage.targetSets;
-  document.getElementById('currentSideLabel').textContent = state.currentSide === 'left' ? 'links' : 'rechts';
-  
-  const pct = Math.min(100, (valid / stage.targetSets) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  
-  const leftValid = state.todaySets.left.filter(s => parseInt(s) >= stage.targetHold).length;
-  const rightValid = state.todaySets.right.filter(s => parseInt(s) >= stage.targetHold).length;
-  
-  const readyBadge = document.getElementById('readyBadge');
-  const nextBtn = document.getElementById('nextBtn');
-  if (leftValid >= stage.targetSets && rightValid >= stage.targetSets && state.currentStage < 17) {
-    readyBadge.style.display = 'inline';
-    nextBtn.classList.add('primary');
-  } else {
-    readyBadge.style.display = 'none';
-    nextBtn.classList.remove('primary');
-  }
-  
-  document.getElementById('saveBtn').disabled = grandTotal === 0;
+function updateProgress(){
+  const stage=getStage();
+  const cur=state.todaySets[state.currentSide];
+  const valid=cur.filter(s=>parseInt(s)>=stage.targetHold).length;
+  const lT=state.todaySets.left.reduce((a,b)=>a+(parseInt(b)||0),0);
+  const rT=state.todaySets.right.reduce((a,b)=>a+(parseInt(b)||0),0);
+  document.getElementById('totalSec').textContent=lT+rT;
+  document.getElementById('validCount').textContent=valid;
+  document.getElementById('validTarget').textContent=stage.targetSets;
+  document.getElementById('currentSideLabel').textContent=state.currentSide==='left'?'links':'rechts';
+  document.getElementById('progressFill').style.width=Math.min(100,(valid/stage.targetSets)*100)+'%';
+  const lv=state.todaySets.left.filter(s=>parseInt(s)>=stage.targetHold).length;
+  const rv=state.todaySets.right.filter(s=>parseInt(s)>=stage.targetHold).length;
+  const rb=document.getElementById('readyBadge'),nb=document.getElementById('nextBtn');
+  if(lv>=stage.targetSets&&rv>=stage.targetSets&&state.currentStage<17){rb.style.display='inline';nb.classList.add('primary');}
+  else{rb.style.display='none';nb.classList.remove('primary');}
+  document.getElementById('saveBtn').disabled=(lT+rT)===0;
+  document.querySelectorAll('.set-input').forEach(inp=>{
+    const v=state.todaySets[state.currentSide][parseInt(inp.dataset.idx)];
+    inp.classList.toggle('valid',v>=stage.targetHold&&v>0);
+  });
 }
 
-function renderHistory() {
-  document.getElementById('histCount').textContent = state.sessions.length;
-  const list = document.getElementById('histList');
-  list.innerHTML = '';
-  if (state.sessions.length === 0) {
-    list.innerHTML = '<div class="empty">Noch keine Sessions geloggt.</div>';
-    return;
-  }
-  state.sessions.slice(0, 20).forEach(s => {
-    const d = new Date(s.date);
-    const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-    const row = document.createElement('div');
-    row.className = 'hist-row';
-    let setsText = '';
-    if (s.leftSets && s.rightSets) {
-      setsText = `L ${s.leftSets.join('·')} · R ${s.rightSets.join('·')}`;
-    } else if (s.sets) {
-      setsText = s.sets.map(x => x + 's').join('·');
-    }
-    row.innerHTML = `
-      <div class="hist-date">${dateStr}</div>
-      <div class="hist-stage">S${s.stage}</div>
-      <div class="hist-sets">${setsText}</div>
-      <div class="hist-total">${s.total}s</div>
-    `;
+function renderHistory(){
+  document.getElementById('histCount').textContent=state.sessions.length;
+  const list=document.getElementById('histList');list.innerHTML='';
+  if(!state.sessions.length){list.innerHTML='<div class="empty">Noch keine Sessions.</div>';return;}
+  state.sessions.slice(0,20).forEach(s=>{
+    const d=new Date(s.date);
+    const ds=d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+    const row=document.createElement('div');row.className='hist-row';
+    let sets='';
+    if(s.leftSets&&s.rightSets)sets='L '+(s.leftSets||[]).join('\xb7')+' R '+(s.rightSets||[]).join('\xb7');
+    else if(s.sets)sets=s.sets.map(x=>x+'s').join('\xb7');
+    row.innerHTML='<div class="hist-date">'+ds+'</div><div class="hist-stage">S'+s.stage+'</div><div class="hist-sets">'+sets+'</div><div class="hist-total">'+s.total+'s</div>';
     list.appendChild(row);
   });
 }
 
-// ============================================================
-// Modal
-// ============================================================
-function openStageModal() {
-  const stage = getStage();
-  document.getElementById('modalTitle').textContent = stage.name;
-  document.getElementById('modalSub').textContent = `Stufe ${stage.id} · ${stage.phase}-Phase`;
-  document.getElementById('modalDesc').textContent = stage.desc;
-  document.getElementById('modalTechnique').textContent = stage.technique || stage.tip;
-  document.getElementById('modalTechniqueWrap').style.display = 'block';
-  document.getElementById('modalMistakes').textContent = stage.mistakes || '';
-  document.getElementById('modalMistakesWrap').style.display = stage.mistakes ? 'block' : 'none';
-  document.getElementById('modalLink').href = stage.video || '#';
-  document.getElementById('modalLink').style.display = stage.video ? 'flex' : 'none';
-  document.getElementById('modalOverlay').classList.add('open');
-}
+// WORKOUT
+let wkState={exercises:[],stepIdx:0,results:{}};
 
-function openAssistModal(id) {
-  const a = ASSISTANCE.find(x => x.id === id);
-  if (!a) return;
-  document.getElementById('modalTitle').textContent = a.name;
-  document.getElementById('modalSub').textContent = `Block ${a.block} · ${a.target}`;
-  document.getElementById('modalDesc').textContent = a.desc;
-  document.getElementById('modalTechnique').textContent = a.technique;
-  document.getElementById('modalTechniqueWrap').style.display = 'block';
-  document.getElementById('modalMistakesWrap').style.display = 'none';
-  document.getElementById('modalLink').href = a.video;
-  document.getElementById('modalLink').style.display = 'flex';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-// ============================================================
-// Event Handlers
-// ============================================================
-document.querySelectorAll('.side-btn').forEach(btn => {
-  btn.onclick = () => {
-    state.currentSide = btn.dataset.side;
-    save();
-    render();
-  };
-});
-
-document.getElementById('saveBtn').onclick = () => {
-  const leftSets = state.todaySets.left.filter(s => s > 0);
-  const rightSets = state.todaySets.right.filter(s => s > 0);
-  const leftTotal = state.todaySets.left.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const rightTotal = state.todaySets.right.reduce((a,b) => a+(parseInt(b)||0), 0);
-  const total = leftTotal + rightTotal;
-  if (total === 0) return;
-  
-  const entry = {
-    date: new Date().toISOString(),
-    stage: state.currentStage,
-    leftSets: leftSets,
-    rightSets: rightSets,
-    leftTotal: leftTotal,
-    rightTotal: rightTotal,
-    total: total
-  };
-  state.sessions.unshift(entry);
-  state.sessions = state.sessions.slice(0, 100);
-  state.sessionCount = (state.sessionCount || 0) + 1;
-  state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
-  state.assistance = {};
-  state.currentSide = 'left';
-  save();
-  render();
-};
-
-document.getElementById('prevBtn').onclick = 
-document.getElementById('prevStageBtn').onclick = () => {
-  if (state.currentStage > 1) {
-    state.currentStage--;
-    state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
-    save();
-    render();
+function buildWorkoutExercises(){
+  const stage=getStage();
+  const rot=getTodayRotation();
+  const assists=rot.map(id=>ASSISTANCE.find(a=>a.id===id)).filter(Boolean);
+  const exs=[];
+  // flag: alternating sides per set
+  for(let set=0;set<stage.targetSets;set++){
+    exs.push({type:'flag',ref:stage,setIdx:set,side:'left'});
+    exs.push({type:'flag',ref:stage,setIdx:set,side:'right'});
   }
-};
-
-document.getElementById('nextBtn').onclick = 
-document.getElementById('nextStageBtn').onclick = () => {
-  if (state.currentStage < 17) {
-    state.currentStage++;
-    state.todaySets = { left: [0,0,0,0,0], right: [0,0,0,0,0] };
-    save();
-    render();
-  }
-};
-
-document.getElementById('stageInfoBtn').onclick = openStageModal;
-
-document.getElementById('histHeader').onclick = () => {
-  const body = document.getElementById('histBody');
-  const toggle = document.getElementById('histToggle');
-  if (body.classList.contains('collapsed-body')) {
-    body.classList.remove('collapsed-body');
-    toggle.textContent = '−';
-  } else {
-    body.classList.add('collapsed-body');
-    toggle.textContent = '+';
-  }
-};
-
-document.getElementById('modalClose').onclick = () =>
-  document.getElementById('modalOverlay').classList.remove('open');
-document.getElementById('modalOverlay').onclick = (e) => {
-  if (e.target === document.getElementById('modalOverlay'))
-    document.getElementById('modalOverlay').classList.remove('open');
-};
-
-document.getElementById('exportBtn').onclick = () => {
-  const data = JSON.stringify(state, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = `human-flag-backup-${date}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-document.getElementById('importTrigger').onclick = () => {
-  document.getElementById('importFile').click();
-};
-
-document.getElementById('importFile').onchange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const parsed = JSON.parse(ev.target.result);
-      if (!parsed.sessions || !Array.isArray(parsed.sessions)) {
-        alert('Ungültige Backup-Datei.');
-        return;
-      }
-      if (confirm(`${parsed.sessions.length} Sessions importieren? Aktuelle Daten werden überschrieben.`)) {
-        state = { ...state, ...parsed };
-        save();
-        render();
-      }
-    } catch (err) {
-      alert('Fehler beim Lesen der Datei.');
+  // assistance: also alternating sides
+  assists.forEach(a=>{
+    for(let set=0;set<3;set++){
+      exs.push({type:'assist',ref:a,setIdx:set,side:'left'});
+      exs.push({type:'assist',ref:a,setIdx:set,side:'right'});
     }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-};
+  });
+  return exs;
+}
 
-document.getElementById('resetBtn').onclick = () => {
-  if (confirm('Wirklich alle Daten löschen?')) {
+function startWorkout(){
+  wkState.exercises=buildWorkoutExercises();
+  wkState.stepIdx=0;
+  wkState.results={flag:{left:[],right:[]},assist:{}};
+  document.getElementById('trackerScreen').style.display='none';
+  document.getElementById('workoutScreen').classList.add('active');
+  renderWorkoutStep();
+}
+
+function exitWorkout(){
+  document.getElementById('workoutScreen').classList.remove('active');
+  document.getElementById('trackerScreen').style.display='';
+  render();
+}
+
+function renderWorkoutStep(){
+  const exs=wkState.exercises;
+  const idx=wkState.stepIdx;
+  if(idx>=exs.length){finishWorkout();return;}
+  const ex=exs[idx];
+  const stage=getStage();
+  const isFlag=ex.type==='flag';
+  const ref=ex.ref;
+  const target=ref.targetHold||(isFlag?stage.targetHold:10);
+  const unit=ref.isReps?'r':'s';
+
+  document.getElementById('workoutPhaseLabel').textContent='Schritt '+(idx+1)+' / '+exs.length;
+  document.getElementById('workoutProgressLabel').textContent=isFlag?stage.phase+'-Phase':'Assistance';
+  document.getElementById('wPhase').textContent=isFlag?'Stufe '+stage.id+' \xb7 '+stage.phase:'Block '+ref.block;
+  document.getElementById('wExercise').textContent=ref.name||'';
+  document.getElementById('wTarget').textContent='Set '+(ex.setIdx+1)+' \xb7 Ziel: '+target+unit;
+  document.getElementById('holdUnit').textContent=unit;
+
+  const sideEl=document.getElementById('wSideIndicator');
+  sideEl.style.display='block';
+  sideEl.className='side-indicator '+(ex.side==='left'?'left':'right');
+  sideEl.textContent=ex.side==='left'?'\u2190 Links':'Rechts \u2192';
+
+  const totalSets=isFlag?stage.targetSets:3;
+  const prog=document.getElementById('setProgress');prog.innerHTML='';
+  for(let i=0;i<totalSets;i++){
+    const dot=document.createElement('div');
+    dot.className='set-dot'+(i<ex.setIdx?' done':i===ex.setIdx?' current':'');
+    prog.appendChild(dot);
+  }
+
+  const circ=document.getElementById('timerCircle');
+  circ.setAttribute('stroke-dasharray','376');circ.setAttribute('stroke-dashoffset','376');
+  circ.className='timer-fill';
+  document.getElementById('timerValue').textContent='\u2014';
+  document.getElementById('timerSub').textContent=unit==='s'?'Sekunden eingeben':'Reps eingeben';
+
+  const inp=document.getElementById('holdInput');
+  inp.value='';inp.focus();
+  inp.oninput=()=>{
+    const v=parseInt(inp.value)||0;
+    const pct=Math.min(1,v/target);
+    circ.setAttribute('stroke-dashoffset',376-(376*pct));
+    document.getElementById('timerValue').textContent=v;
+    circ.className='timer-fill'+(v>=target?' done':'');
+    document.getElementById('timerSub').textContent=v>=target?'\u2713 Ziel erreicht!':unit==='s'?'Sekunden':'Reps';
+  };
+
+  document.getElementById('wTipText').textContent=isFlag?(ref.tip||stage.tip):(ref.technique||'');
+  document.getElementById('wPrevBtn').disabled=idx===0;
+  renderAlerts('alertsWorkout');
+}
+
+function confirmWorkoutStep(){
+  const ex=wkState.exercises[wkState.stepIdx];
+  const v=parseInt(document.getElementById('holdInput').value)||0;
+  const stage=getStage();
+  const target=ex.ref.targetHold||(ex.type==='flag'?stage.targetHold:10);
+
+  if(ex.type==='flag'){
+    if(!wkState.results.flag[ex.side])wkState.results.flag[ex.side]=[];
+    wkState.results.flag[ex.side].push(v);
+    const setArr=state.todaySets[ex.side];
+    if(ex.setIdx<setArr.length)setArr[ex.setIdx]=v;
+  }else{
+    if(!wkState.results.assist[ex.ref.id])wkState.results.assist[ex.ref.id]=[];
+    wkState.results.assist[ex.ref.id].push(v);
+  }
+
+  if(v>=target){
+    document.getElementById('congratsTitle').textContent='Ziel erreicht!';
+    document.getElementById('congratsSub').textContent=v+(ex.ref.isReps?'r':'s')+' \u2014 Ziel war '+target+(ex.ref.isReps?'r':'s')+'. Weiter so!';
+    const ov=document.getElementById('congratsOverlay');ov.classList.add('show');
+    document.getElementById('congratsNext').onclick=()=>{ov.classList.remove('show');advanceWorkout();};
+    document.getElementById('congratsClose').onclick=()=>{ov.classList.remove('show');};
+  }else{
+    advanceWorkout();
+  }
+}
+
+function advanceWorkout(){wkState.stepIdx++;renderWorkoutStep();}
+
+function finishWorkout(){
+  const lSets=wkState.results.flag.left||[];
+  const rSets=wkState.results.flag.right||[];
+  const lT=lSets.reduce((a,b)=>a+b,0);
+  const rT=rSets.reduce((a,b)=>a+b,0);
+  if(lT+rT>0){
+    const entry={date:new Date().toISOString(),stage:state.currentStage,
+      leftSets:lSets,rightSets:rSets,leftTotal:lT,rightTotal:rT,total:lT+rT,assistBests:{}};
+    Object.entries(wkState.results.assist||{}).forEach(([id,vals])=>{
+      entry.assistBests[id]=Math.max(...vals);
+    });
+    state.sessions.unshift(entry);
+    state.sessions=state.sessions.slice(0,100);
+    state.sessionCount=(state.sessionCount||0)+1;
+    state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};
+    state.assistance={};
+    save();
+  }
+  exitWorkout();
+}
+
+function openStageModal(){
+  const s=getStage();
+  document.getElementById('modalTitle').textContent=s.name;
+  document.getElementById('modalSub').textContent='Stufe '+s.id+' \xb7 '+s.phase+'-Phase';
+  document.getElementById('modalDesc').textContent=s.desc;
+  document.getElementById('modalTech').textContent=s.technique||s.tip;
+  document.getElementById('modalTechWrap').style.display='block';
+  document.getElementById('modalMistakes').textContent=s.mistakes||'';
+  document.getElementById('modalMistakesWrap').style.display=s.mistakes?'block':'none';
+  document.getElementById('modalLink').href=s.video||'#';
+  document.getElementById('modalLink').style.display=s.video?'flex':'none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function openAssistModal(id){
+  const a=ASSISTANCE.find(x=>x.id===id);if(!a)return;
+  document.getElementById('modalTitle').textContent=a.name;
+  document.getElementById('modalSub').textContent='Block '+a.block+' \xb7 '+a.target;
+  document.getElementById('modalDesc').textContent=a.desc;
+  document.getElementById('modalTech').textContent=a.technique;
+  document.getElementById('modalTechWrap').style.display='block';
+  document.getElementById('modalMistakesWrap').style.display='none';
+  document.getElementById('modalLink').href=a.video;
+  document.getElementById('modalLink').style.display='flex';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+document.querySelectorAll('.side-btn').forEach(b=>{b.onclick=()=>{state.currentSide=b.dataset.side;save();render();};});
+document.getElementById('saveBtn').onclick=()=>{
+  const lS=state.todaySets.left.filter(s=>s>0);
+  const rS=state.todaySets.right.filter(s=>s>0);
+  const lT=state.todaySets.left.reduce((a,b)=>a+(parseInt(b)||0),0);
+  const rT=state.todaySets.right.reduce((a,b)=>a+(parseInt(b)||0),0);
+  if(lT+rT===0)return;
+  state.sessions.unshift({date:new Date().toISOString(),stage:state.currentStage,
+    leftSets:lS,rightSets:rS,leftTotal:lT,rightTotal:rT,total:lT+rT});
+  state.sessions=state.sessions.slice(0,100);
+  state.sessionCount=(state.sessionCount||0)+1;
+  state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};
+  state.assistance={};state.currentSide='left';save();render();
+};
+document.getElementById('startWorkoutBtn').onclick=startWorkout;
+document.getElementById('exitWorkoutBtn').onclick=exitWorkout;
+document.getElementById('wNextBtn').onclick=confirmWorkoutStep;
+document.getElementById('wPrevBtn').onclick=()=>{if(wkState.stepIdx>0){wkState.stepIdx--;renderWorkoutStep();}};
+[document.getElementById('prevBtn'),document.getElementById('prevStageBtn')].forEach(b=>{
+  b.onclick=()=>{if(state.currentStage>1){state.currentStage--;state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};save();render();}};
+});
+[document.getElementById('nextBtn'),document.getElementById('nextStageBtn')].forEach(b=>{
+  b.onclick=()=>{if(state.currentStage<17){state.currentStage++;state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};save();render();}};
+});
+document.getElementById('stageInfoBtn').onclick=openStageModal;
+document.getElementById('modalClose').onclick=()=>document.getElementById('modalOverlay').classList.remove('open');
+document.getElementById('modalOverlay').onclick=e=>{if(e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');};
+document.getElementById('histHeader').onclick=()=>{
+  const b=document.getElementById('histBody'),t=document.getElementById('histToggle');
+  if(b.classList.contains('collapsed-body')){b.classList.remove('collapsed-body');t.textContent='\u2212';}
+  else{b.classList.add('collapsed-body');t.textContent='+';}
+};
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='human-flag-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);
+};
+document.getElementById('importTrigger').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=e=>{
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const p=JSON.parse(ev.target.result);
+      if(!p.sessions||!Array.isArray(p.sessions)){alert('Ung\xfcltige Datei.');return;}
+      if(confirm(p.sessions.length+' Sessions importieren?')){state={...state,...p};save();render();}
+    }catch(err){alert('Fehler beim Lesen.');}
+  };r.readAsText(file);e.target.value='';
+};
+document.getElementById('resetBtn').onclick=()=>{
+  if(confirm('Wirklich alle Daten l\xf6schen?')){
     localStorage.removeItem(STORAGE_KEY);
-    state = {
-      currentStage: 1,
-      todaySets: { left: [0,0,0,0,0], right: [0,0,0,0,0] },
-      currentSide: 'left',
-      assistance: {},
-      sessions: [],
-      lastDeloadDate: null,
-      sessionCount: 0
-    };
+    state={currentStage:1,todaySets:{left:[0,0,0,0,0],right:[0,0,0,0,0]},
+      currentSide:'left',assistance:{},sessions:[],sessionCount:0,lastDeloadDate:null};
     render();
   }
 };
-
-load();
-render();
+load();render();
 </script>
 </body>
 </html>
