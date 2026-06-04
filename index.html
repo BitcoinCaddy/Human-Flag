@@ -720,21 +720,33 @@ function renderHistory(){
 // WORKOUT
 let wkState={exercises:[],stepIdx:0,results:{}};
 
+// Assistance-Übungen die bilateral sind (keine Seiten-Trennung)
+const BILATERAL_ASSIST=['b1','b3','d1','d2'];
+
 function buildWorkoutExercises(){
   const stage=getStage();
   const rot=getTodayRotation();
   const assists=rot.map(id=>ASSISTANCE.find(a=>a.id===id)).filter(Boolean);
   const exs=[];
-  // flag: alternating sides per set
+  // flag: alternating L/R within each set-round
+  // Structure: Round 1 (L+R), Rest, Round 2 (L+R), Rest, Round 3 (L+R)
   for(let set=0;set<stage.targetSets;set++){
-    exs.push({type:'flag',ref:stage,setIdx:set,side:'left'});
-    exs.push({type:'flag',ref:stage,setIdx:set,side:'right'});
+    if(set>0) exs.push({type:'rest',duration:120,label:'Pause (2 Min)'});
+    exs.push({type:'flag',ref:stage,setIdx:set,side:'left',totalSets:stage.targetSets});
+    exs.push({type:'flag',ref:stage,setIdx:set,side:'right',totalSets:stage.targetSets});
   }
-  // assistance: also alternating sides
+  // assistance
   assists.forEach(a=>{
+    const bilateral=BILATERAL_ASSIST.includes(a.id);
+    exs.push({type:'rest',duration:90,label:'Pause (90s)'});
     for(let set=0;set<3;set++){
-      exs.push({type:'assist',ref:a,setIdx:set,side:'left'});
-      exs.push({type:'assist',ref:a,setIdx:set,side:'right'});
+      if(set>0) exs.push({type:'rest',duration:60,label:'Pause (60s)'});
+      if(bilateral){
+        exs.push({type:'assist',ref:a,setIdx:set,side:'both',totalSets:3});
+      }else{
+        exs.push({type:'assist',ref:a,setIdx:set,side:'left',totalSets:3});
+        exs.push({type:'assist',ref:a,setIdx:set,side:'right',totalSets:3});
+      }
     }
   });
   return exs;
@@ -750,35 +762,84 @@ function startWorkout(){
 }
 
 function exitWorkout(){
+  if(restTimer){clearInterval(restTimer);restTimer=null;}
   document.getElementById('workoutScreen').classList.remove('active');
   document.getElementById('trackerScreen').style.display='';
   render();
 }
+
+let restTimer=null;
 
 function renderWorkoutStep(){
   const exs=wkState.exercises;
   const idx=wkState.stepIdx;
   if(idx>=exs.length){finishWorkout();return;}
   const ex=exs[idx];
+  if(restTimer){clearInterval(restTimer);restTimer=null;}
+
+  // REST STEP
+  if(ex.type==='rest'){
+    document.getElementById('workoutPhaseLabel').textContent='Pause';
+    document.getElementById('workoutProgressLabel').textContent='Erholen';
+    document.getElementById('wPhase').textContent='Pause';
+    document.getElementById('wExercise').textContent=ex.label||'Pause';
+    document.getElementById('wTarget').textContent='Atmen, lockern, trinken';
+    document.getElementById('wSideIndicator').style.display='none';
+    document.getElementById('wTipText').textContent='2-3 Minuten Pause zwischen Flag-Sets sind optimal (Eric Flag, FitnessFAQs). Schultern ausschütteln, Ellbogen kontrollieren.';
+    document.getElementById('holdInput').value='';
+    document.getElementById('holdUnit').textContent='s';
+    document.getElementById('setProgress').innerHTML='';
+    const circ=document.getElementById('timerCircle');
+    let rem=ex.duration;
+    circ.setAttribute('stroke-dasharray','376');
+    circ.setAttribute('stroke-dashoffset','0');
+    circ.className='timer-fill done';
+    document.getElementById('timerValue').textContent=rem;
+    document.getElementById('timerSub').textContent='Sekunden';
+    restTimer=setInterval(()=>{
+      rem--;
+      document.getElementById('timerValue').textContent=rem;
+      const pct=rem/ex.duration;
+      circ.setAttribute('stroke-dashoffset',376-(376*pct));
+      if(rem<=0){clearInterval(restTimer);restTimer=null;advanceWorkout();}
+    },1000);
+    document.getElementById('wPrevBtn').disabled=idx===0;
+    document.getElementById('wNextBtn').textContent='Überspringen →';
+    return;
+  }
+
+  document.getElementById('wNextBtn').textContent='Bestätigen →';
   const stage=getStage();
   const isFlag=ex.type==='flag';
   const ref=ex.ref;
   const target=ref.targetHold||(isFlag?stage.targetHold:10);
   const unit=ref.isReps?'r':'s';
+  const totalSets=ex.totalSets||3;
 
+  // count how many non-rest steps we've done for this exercise+side combo
   document.getElementById('workoutPhaseLabel').textContent='Schritt '+(idx+1)+' / '+exs.length;
   document.getElementById('workoutProgressLabel').textContent=isFlag?stage.phase+'-Phase':'Assistance';
-  document.getElementById('wPhase').textContent=isFlag?'Stufe '+stage.id+' \xb7 '+stage.phase:'Block '+ref.block;
+  document.getElementById('wPhase').textContent=isFlag?'Stufe '+stage.id+' · '+stage.phase:'Block '+ref.block;
   document.getElementById('wExercise').textContent=ref.name||'';
-  document.getElementById('wTarget').textContent='Set '+(ex.setIdx+1)+' \xb7 Ziel: '+target+unit;
+
+  // side indicator
+  const sideEl=document.getElementById('wSideIndicator');
+  if(ex.side==='both'){
+    sideEl.style.display='block';
+    sideEl.className='side-indicator left';
+    sideEl.textContent='Beide Seiten';
+  }else{
+    sideEl.style.display='block';
+    sideEl.className='side-indicator '+(ex.side==='left'?'left':'right');
+    sideEl.textContent=ex.side==='left'?'← Links':'Rechts →';
+  }
+
+  // target line: show if this is L or R within a set
+  const sideLabel=ex.side==='left'?' · Links':ex.side==='right'?' · Rechts':'';
+  document.getElementById('wTarget').textContent='Set '+(ex.setIdx+1)+'/'+totalSets+sideLabel+' · Ziel: '+target+unit;
   document.getElementById('holdUnit').textContent=unit;
 
-  const sideEl=document.getElementById('wSideIndicator');
-  sideEl.style.display='block';
-  sideEl.className='side-indicator '+(ex.side==='left'?'left':'right');
-  sideEl.textContent=ex.side==='left'?'\u2190 Links':'Rechts \u2192';
-
-  const totalSets=isFlag?stage.targetSets:3;
+  // set-progress dots: show per-set progress (one dot per full set = both sides done)
   const prog=document.getElementById('setProgress');prog.innerHTML='';
   for(let i=0;i<totalSets;i++){
     const dot=document.createElement('div');
@@ -789,7 +850,7 @@ function renderWorkoutStep(){
   const circ=document.getElementById('timerCircle');
   circ.setAttribute('stroke-dasharray','376');circ.setAttribute('stroke-dashoffset','376');
   circ.className='timer-fill';
-  document.getElementById('timerValue').textContent='\u2014';
+  document.getElementById('timerValue').textContent='—';
   document.getElementById('timerSub').textContent=unit==='s'?'Sekunden eingeben':'Reps eingeben';
 
   const inp=document.getElementById('holdInput');
@@ -800,7 +861,7 @@ function renderWorkoutStep(){
     circ.setAttribute('stroke-dashoffset',376-(376*pct));
     document.getElementById('timerValue').textContent=v;
     circ.className='timer-fill'+(v>=target?' done':'');
-    document.getElementById('timerSub').textContent=v>=target?'\u2713 Ziel erreicht!':unit==='s'?'Sekunden':'Reps';
+    document.getElementById('timerSub').textContent=v>=target?'✓ Ziel erreicht!':unit==='s'?'Sekunden':'Reps';
   };
 
   document.getElementById('wTipText').textContent=isFlag?(ref.tip||stage.tip):(ref.technique||'');
@@ -808,27 +869,38 @@ function renderWorkoutStep(){
   renderAlerts('alertsWorkout');
 }
 
+function saveStepResult(ex, v){
+  const stage=getStage();
+  if(ex.type==='flag'){
+    const sides=ex.side==='both'?['left','right']:[ex.side];
+    sides.forEach(s=>{
+      if(!wkState.results.flag[s])wkState.results.flag[s]=[];
+      wkState.results.flag[s].push(v);
+      const setArr=state.todaySets[s];
+      if(ex.setIdx<setArr.length)setArr[ex.setIdx]=v;
+    });
+  }else if(ex.type==='assist'){
+    if(!wkState.results.assist[ex.ref.id])wkState.results.assist[ex.ref.id]=[];
+    wkState.results.assist[ex.ref.id].push(v);
+  }
+}
+
 function confirmWorkoutStep(){
   const ex=wkState.exercises[wkState.stepIdx];
+  if(ex.type==='rest'){advanceWorkout();return;}
   const v=parseInt(document.getElementById('holdInput').value)||0;
   const stage=getStage();
   const target=ex.ref.targetHold||(ex.type==='flag'?stage.targetHold:10);
 
-  if(ex.type==='flag'){
-    if(!wkState.results.flag[ex.side])wkState.results.flag[ex.side]=[];
-    wkState.results.flag[ex.side].push(v);
-    const setArr=state.todaySets[ex.side];
-    if(ex.setIdx<setArr.length)setArr[ex.setIdx]=v;
-  }else{
-    if(!wkState.results.assist[ex.ref.id])wkState.results.assist[ex.ref.id]=[];
-    wkState.results.assist[ex.ref.id].push(v);
-  }
+  saveStepResult(ex, v);
 
   if(v>=target){
     document.getElementById('congratsTitle').textContent='Ziel erreicht!';
-    document.getElementById('congratsSub').textContent=v+(ex.ref.isReps?'r':'s')+' \u2014 Ziel war '+target+(ex.ref.isReps?'r':'s')+'. Weiter so!';
+    document.getElementById('congratsSub').textContent=v+(ex.ref.isReps?'r':'s')+' — Ziel war '+target+(ex.ref.isReps?'r':'s')+'. Weiter so!';
     const ov=document.getElementById('congratsOverlay');ov.classList.add('show');
+    // "Weiter" -> advance
     document.getElementById('congratsNext').onclick=()=>{ov.classList.remove('show');advanceWorkout();};
+    // "Nochmal" -> just close, result already saved, user can re-enter
     document.getElementById('congratsClose').onclick=()=>{ov.classList.remove('show');};
   }else{
     advanceWorkout();
