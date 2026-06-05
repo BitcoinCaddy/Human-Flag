@@ -211,8 +211,9 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       <div class="target-row">
         <div class="target-box"><div class="target-val" id="targetHold">10s</div><div class="target-label">Ziel/Set</div></div>
         <div class="target-box"><div class="target-val" id="targetSets">3</div><div class="target-label">Sets/Seite</div></div>
-        <div class="target-box"><div class="target-val" id="bestHold">0s</div><div class="target-label">Rekord</div></div>
+        <div class="target-box"><div class="target-val" id="bestHold" style="font-size:.95rem">0s</div><div class="target-label">Rekord</div></div>
       </div>
+      <div id="stageRecordBar" style="display:none;border-radius:10px;padding:.5rem .9rem;margin-bottom:.8rem;font-family:var(--mono);font-size:.75rem;font-weight:700;text-align:center;"></div>
     </div>
   </div>
   <div class="card fadeUp d2">
@@ -478,53 +479,53 @@ const STAGES=[
 ];
 
 const ASSISTANCE=[
-  {id:'a1',block:'A',name:'Side Plank + Reach Overhead',target:'3\xd730-45s/Seite',
-   desc:'Side Plank halten, oberen Arm gestreckt \xfcber den Kopf reichen.',
-   technique:'St\xfctze auf Unterarm oder Hand. Oberen Arm gestreckt \xfcber Kopf reichen. H\xfcfte hoch halten.',
+  {id:'a1',block:'A',name:'Side Plank + Reach Overhead',target:'3×45s/Seite',targetHold:45,isReps:false,
+   desc:'Side Plank halten, oberen Arm gestreckt über den Kopf reichen.',
+   technique:'Stütze auf Unterarm oder Hand. Oberen Arm gestreckt über Kopf reichen. Hüfte hoch halten.',
    video:'https://www.youtube.com/shorts/Qncfhd7rgZo'},
-  {id:'a2',block:'A',name:'Hanging Windshield Wipers',target:'3\xd76-8/Seite',
-   desc:'H\xe4ngend an Stange, Beine auf 90\xb0 heben, Scheibenwischer-Bewegung.',
-   technique:'An Klimmzugstange h\xe4ngen. Beine auf 90\xb0 heben. Langsam von links nach rechts. Kein Schwung.',
+  {id:'a2',block:'A',name:'Hanging Windshield Wipers',target:'3×8 Wdh/Seite',targetHold:8,isReps:true,
+   desc:'Hängend an Stange, Beine auf 90° heben, Scheibenwischer-Bewegung.',
+   technique:'An Klimmzugstange hängen. Beine auf 90° heben. Langsam von links nach rechts. Kein Schwung.',
    video:'https://www.youtube.com/shorts/oXuBmKzIIKs'},
-  {id:'a3',block:'A',name:'Dragon Flag',target:'3\xd75 Reps',
-   desc:'Auf Bank liegend K\xf6rper als Brett anheben und absenken.',
-   technique:'Auf R\xfccken liegen, hinter Kopf festhalten. K\xf6rper als Brett anheben bis fast senkrecht, 4-5s absenken. Schultern bleiben unten.',
+  {id:'a3',block:'A',name:'Dragon Flag',target:'3×5 Wdh',targetHold:5,isReps:true,
+   desc:'Auf Bank liegend Körper als Brett anheben und absenken.',
+   technique:'Auf Rücken liegen, hinter Kopf festhalten. Körper als Brett anheben bis fast senkrecht, 4-5s absenken. Schultern bleiben unten.',
    video:'https://www.youtube.com/shorts/RX_FLzq-nXk'},
-  {id:'a4',block:'A',name:'Side Plank Hip Dip',target:'3\xd712/Seite',
-   desc:'Aus Side Plank H\xfcfte absenken und wieder hochheben.',
-   technique:'Side Plank. H\xfcfte langsam Richtung Boden, dann aktiv hochheben. Kontrolliert.',
+  {id:'a4',block:'A',name:'Side Plank Hip Dip',target:'3×15 Wdh/Seite',targetHold:15,isReps:true,
+   desc:'Aus Side Plank Hüfte absenken und wieder hochheben.',
+   technique:'Side Plank. Hüfte langsam Richtung Boden, dann aktiv hochheben. Kontrolliert.',
    video:'https://www.youtube.com/shorts/4yylMqlnjwU'},
-  {id:'b1',block:'B',name:'Pike Push-ups',target:'3\xd78-10',
-   desc:'H\xfcfte hoch, umgekehrtes V, Schulter-Druckkraft f\xfcr die untere Hand.',
-   technique:'H\xe4nde schulterbreit, H\xfcfte hoch, umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, hochdr\xfccken.',
+  {id:'b1',block:'B',name:'Pike Push-ups',target:'3×10 Wdh',targetHold:10,isReps:true,
+   desc:'Hüfte hoch, umgekehrtes V, Schulter-Druckkraft für die untere Hand.',
+   technique:'Hände schulterbreit, Hüfte hoch, umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, hochdrücken.',
    video:'https://www.youtube.com/shorts/0cT6ug3WVn4'},
-  {id:'b2',block:'B',name:'Kettlebell Windmill',target:'3\xd75/Seite',
-   desc:'Kettlebell \xfcberkopf, zur Seite beugen. StrongFirst-Klassiker.',
-   technique:'Kettlebell \xfcberkopf gestreckt. Langsam zur Seite beugen, freie Hand am Bein. Blick auf Kettlebell. Leicht starten!',
+  {id:'b2',block:'B',name:'Kettlebell Windmill',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
+   desc:'Kettlebell überkopf, zur Seite beugen. StrongFirst-Klassiker.',
+   technique:'Kettlebell überkopf gestreckt. Langsam zur Seite beugen, freie Hand am Bein. Blick auf Kettlebell. Leicht starten!',
    video:'https://www.youtube.com/watch?v=EZWHnzAjctU'},
-  {id:'b3',block:'B',name:'Wall Handstand Hold',target:'3\xd730-45s',
-   desc:'Handstand an der Wand halten. Overhead-Schulterstabiit\xe4t.',
-   technique:'Mit Bauch zur Wand hochwalken. K\xf6rper gestreckt, Schultern aktiv hochdr\xfccken.',
+  {id:'b3',block:'B',name:'Wall Handstand Hold',target:'3×45s',targetHold:45,isReps:false,
+   desc:'Handstand an der Wand halten. Overhead-Schulterstabiität.',
+   technique:'Mit Bauch zur Wand hochwalken. Körper gestreckt, Schultern aktiv hochdrücken.',
    video:'https://www.youtube.com/shorts/5UvQTTGRHmw'},
-  {id:'c1',block:'C',name:'One-Arm Negativklimmzug',target:'3\xd73-5/Seite',
+  {id:'c1',block:'C',name:'One-Arm Negativklimmzug',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
    desc:'Mit beiden Armen hoch, einarmig langsam absinken.',
    technique:'Mit beiden Armen hochziehen, dann einen Arm loslassen und einarmig 4-6s absinken.',
    video:'https://www.youtube.com/shorts/vcYjMwZ1QD4'},
-  {id:'c2',block:'C',name:'Scapular Pull-Ups',target:'3\xd710',
-   desc:'Aus Dead Hang nur Schulterbl\xe4tter aktiv depressieren.',
-   technique:'An Stange h\xe4ngen. Schulterbl\xe4tter aktiv depressieren und zusammenziehen. Ellbogen bleiben gestreckt.',
+  {id:'c2',block:'C',name:'Scapular Pull-Ups',target:'3×12 Wdh',targetHold:12,isReps:true,
+   desc:'Aus Dead Hang nur Schulterblätter aktiv depressieren.',
+   technique:'An Stange hängen. Schulterblätter aktiv depressieren und zusammenziehen. Ellbogen bleiben gestreckt.',
    video:'https://www.youtube.com/shorts/qD3shXT3AU8'},
-  {id:'c3',block:'C',name:'Archer Pull-Ups',target:'3\xd75/Seite',
+  {id:'c3',block:'C',name:'Archer Pull-Ups',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
    desc:'Klimmzug mit Schwerpunkt auf einer Seite, anderer Arm gestreckt.',
-   technique:'Wide Grip, hochziehen zu einer Seite, anderer Arm gestreckt. Brust n\xe4her an die Zugseite.',
+   technique:'Wide Grip, hochziehen zu einer Seite, anderer Arm gestreckt. Brust näher an die Zugseite.',
    video:'https://www.youtube.com/shorts/R_drd0U3knE'},
-  {id:'d1',block:'D',name:'Hollow Body Hold',target:'3\xd730-45s',
-   desc:'Schulterbl\xe4tter und Beine anheben. Ganzk\xf6rperspannung.',
-   technique:'Auf R\xfccken. Schulterbl\xe4tter und Beine gleichzeitig anheben. LWS an den Boden. Arme \xfcber Kopf.',
+  {id:'d1',block:'D',name:'Hollow Body Hold',target:'3×45s',targetHold:45,isReps:false,
+   desc:'Schulterblätter und Beine anheben. Ganzkörperspannung.',
+   technique:'Auf Rücken. Schulterblätter und Beine gleichzeitig anheben. LWS an den Boden. Arme über Kopf.',
    video:'https://www.youtube.com/shorts/MY6_stJuy7M'},
-  {id:'d2',block:'D',name:'L-Sit',target:'3\xd715-20s',
-   desc:'An Barren abst\xfctzen, Beine gestreckt horizontal halten.',
-   technique:'H\xe4nde auf Barren. K\xf6rper hochst\xfctzen, Beine gestreckt vorne anheben. Schulterbl\xe4tter depressed.',
+  {id:'d2',block:'D',name:'L-Sit',target:'3×20s',targetHold:20,isReps:false,
+   desc:'An Barren abstützen, Beine gestreckt horizontal halten.',
+   technique:'Hände auf Barren. Körper hochstützen, Beine gestreckt vorne anheben. Schulterblätter depressed.',
    video:'https://www.youtube.com/shorts/4XGlmKk96Jg'}
 ];
 
@@ -611,8 +612,20 @@ function render(){
     (s.sets||[]).forEach(v=>{if(v>best)best=v;});
   });
   const bEl=document.getElementById('bestHold');
-  bEl.textContent=best+'s';
+  bEl.textContent=best+(stage.isReps?'r':'s');
   bEl.className='target-val'+(best>=stage.targetHold&&best>0?' achieved':'');
+  // Bestzeit-Bar unter Target-Row
+  const recBar=document.getElementById('stageRecordBar');
+  if(best>0){
+    const met=best>=stage.targetHold;
+    recBar.style.display='block';
+    recBar.style.background=met?'var(--green-dim)':'var(--red-dim)';
+    recBar.style.border='1px solid '+(met?'var(--green)':'var(--red)');
+    recBar.style.color=met?'var(--green)':'var(--red)';
+    recBar.textContent=(met?'✓ Bestzeit ':'⚠ Bestzeit ')+best+(stage.isReps?'r':'s')+(met?' — Ziel erreicht':' — Ziel: '+stage.targetHold+(stage.isReps?'r':'s'));
+  }else{
+    recBar.style.display='none';
+  }
   const lv=state.todaySets.left.filter(s=>parseInt(s)>=stage.targetHold).length;
   const rv=state.todaySets.right.filter(s=>parseInt(s)>=stage.targetHold).length;
   document.querySelectorAll('.side-btn').forEach(b=>b.classList.toggle('active',b.dataset.side===state.currentSide));
@@ -718,7 +731,7 @@ function renderHistory(){
 }
 
 // WORKOUT
-let wkState={exercises:[],stepIdx:0,results:{}};
+let wkState={exercises:[],stepIdx:0,results:{},congratsShown:false};
 
 // Assistance-Übungen die bilateral sind (keine Seiten-Trennung)
 const BILATERAL_ASSIST=['b1','b3','d1','d2'];
@@ -752,10 +765,27 @@ function buildWorkoutExercises(){
   return exs;
 }
 
+function playBeep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,150,300].forEach(delay=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=880;osc.type='sine';
+      gain.gain.setValueAtTime(0.4,ctx.currentTime+delay/1000);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay/1000+0.2);
+      osc.start(ctx.currentTime+delay/1000);
+      osc.stop(ctx.currentTime+delay/1000+0.25);
+    });
+  }catch(e){}
+}
+
 function startWorkout(){
   wkState.exercises=buildWorkoutExercises();
   wkState.stepIdx=0;
   wkState.results={flag:{left:[],right:[]},assist:{}};
+  wkState.congratsShown=false;
   document.getElementById('trackerScreen').style.display='none';
   document.getElementById('workoutScreen').classList.add('active');
   renderWorkoutStep();
@@ -801,7 +831,7 @@ function renderWorkoutStep(){
       document.getElementById('timerValue').textContent=rem;
       const pct=rem/ex.duration;
       circ.setAttribute('stroke-dashoffset',376-(376*pct));
-      if(rem<=0){clearInterval(restTimer);restTimer=null;advanceWorkout();}
+      if(rem<=0){clearInterval(restTimer);restTimer=null;playBeep();advanceWorkout();}
     },1000);
     document.getElementById('wPrevBtn').disabled=idx===0;
     document.getElementById('wNextBtn').textContent='Überspringen →';
@@ -866,6 +896,8 @@ function renderWorkoutStep(){
 
   document.getElementById('wTipText').textContent=isFlag?(ref.tip||stage.tip):(ref.technique||'');
   document.getElementById('wPrevBtn').disabled=idx===0;
+  // Enter = Bestätigen
+  inp.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault();confirmWorkoutStep();}};
   renderAlerts('alertsWorkout');
 }
 
@@ -894,13 +926,12 @@ function confirmWorkoutStep(){
 
   saveStepResult(ex, v);
 
-  if(v>=target){
+  if(v>=target&&!wkState.congratsShown){
+    wkState.congratsShown=true;
     document.getElementById('congratsTitle').textContent='Ziel erreicht!';
-    document.getElementById('congratsSub').textContent=v+(ex.ref.isReps?'r':'s')+' — Ziel war '+target+(ex.ref.isReps?'r':'s')+'. Weiter so!';
+    document.getElementById('congratsSub').textContent=v+(ex.ref.isReps?'r·':'s')+' — Ziel war '+target+(ex.ref.isReps?'r':'s')+'. Weiter so!';
     const ov=document.getElementById('congratsOverlay');ov.classList.add('show');
-    // "Weiter" -> advance
     document.getElementById('congratsNext').onclick=()=>{ov.classList.remove('show');advanceWorkout();};
-    // "Nochmal" -> just close, result already saved, user can re-enter
     document.getElementById('congratsClose').onclick=()=>{ov.classList.remove('show');};
   }else{
     advanceWorkout();
