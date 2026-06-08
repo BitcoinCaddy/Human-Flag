@@ -295,6 +295,14 @@ button:disabled{opacity:.4;cursor:not-allowed;}
         <div class="workout-target" id="wTarget"></div>
       </div>
       <div id="wSideIndicator" class="side-indicator left" style="display:none">Links</div>
+      <div id="wBestInfo" style="display:none;text-align:center;font-family:var(--mono);font-size:.72rem;font-weight:700;margin-bottom:.8rem;padding:.5rem;border-radius:8px;"></div>
+      <div id="wWeightWrap" style="display:none;margin-bottom:.8rem">
+        <div style="font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);text-align:center;margin-bottom:.3rem">Gewicht</div>
+        <div class="hold-input-wrap" style="padding:.5rem">
+          <input type="number" class="hold-input" id="weightInput" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0" style="font-size:1.3rem;width:3rem">
+          <span class="hold-unit" id="weightUnit" style="font-size:.9rem">kg</span>
+        </div>
+      </div>
       <div class="timer-ring">
         <svg viewBox="0 0 140 140" width="140" height="140">
           <circle class="timer-bg" cx="70" cy="70" r="60"/>
@@ -499,7 +507,7 @@ const ASSISTANCE=[
    desc:'Hüfte hoch, umgekehrtes V, Schulter-Druckkraft für die untere Hand.',
    technique:'Hände schulterbreit, Hüfte hoch, umgekehrtes V. Ellbogen beugen, Kopf Richtung Boden, hochdrücken.',
    video:'https://www.youtube.com/shorts/0cT6ug3WVn4'},
-  {id:'b2',block:'B',name:'Kettlebell Windmill',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
+  {id:'b2',block:'B',name:'Kettlebell Windmill',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,hasWeight:true,weightUnit:'kg',weightDefault:12,
    desc:'Kettlebell überkopf, zur Seite beugen. StrongFirst-Klassiker.',
    technique:'Kettlebell überkopf gestreckt. Langsam zur Seite beugen, freie Hand am Bein. Blick auf Kettlebell. Leicht starten!',
    video:'https://www.youtube.com/watch?v=EZWHnzAjctU'},
@@ -507,7 +515,7 @@ const ASSISTANCE=[
    desc:'Handstand an der Wand halten. Overhead-Schulterstabiität.',
    technique:'Mit Bauch zur Wand hochwalken. Körper gestreckt, Schultern aktiv hochdrücken.',
    video:'https://www.youtube.com/shorts/5UvQTTGRHmw'},
-  {id:'c1',block:'C',name:'One-Arm Negativklimmzug',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
+  {id:'c1',block:'C',name:'One-Arm Negativklimmzug',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,hasWeight:true,weightUnit:'kg',weightDefault:0,
    desc:'Mit beiden Armen hoch, einarmig langsam absinken.',
    technique:'Mit beiden Armen hochziehen, dann einen Arm loslassen und einarmig 4-6s absinken.',
    video:'https://www.youtube.com/shorts/vcYjMwZ1QD4'},
@@ -515,7 +523,7 @@ const ASSISTANCE=[
    desc:'Aus Dead Hang nur Schulterblätter aktiv depressieren.',
    technique:'An Stange hängen. Schulterblätter aktiv depressieren und zusammenziehen. Ellbogen bleiben gestreckt.',
    video:'https://www.youtube.com/shorts/qD3shXT3AU8'},
-  {id:'c3',block:'C',name:'Archer Pull-Ups',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,
+  {id:'c3',block:'C',name:'Archer Pull-Ups',target:'3×5 Wdh/Seite',targetHold:5,isReps:true,hasWeight:true,weightUnit:'kg',weightDefault:0,
    desc:'Klimmzug mit Schwerpunkt auf einer Seite, anderer Arm gestreckt.',
    technique:'Wide Grip, hochziehen zu einer Seite, anderer Arm gestreckt. Brust näher an die Zugseite.',
    video:'https://www.youtube.com/shorts/R_drd0U3knE'},
@@ -669,14 +677,17 @@ function render(){
   const list=document.getElementById('assistList');list.innerHTML='';
   [...ASSISTANCE].sort((a,b)=>(rot.includes(a.id)?0:1)-(rot.includes(b.id)?0:1)).forEach(a=>{
     const isRec=rot.includes(a.id);
-    let bestA=0;
-    state.sessions.forEach(s=>{if(s.assistBests&&s.assistBests[a.id]&&s.assistBests[a.id]>bestA)bestA=s.assistBests[a.id];});
+    let bestA=0,lastW=null;
+    state.sessions.forEach(s=>{
+      if(s.assistBests&&s.assistBests[a.id]&&s.assistBests[a.id]>bestA)bestA=s.assistBests[a.id];
+      if(s.assistWeights&&s.assistWeights[a.id]!==undefined)lastW=s.assistWeights[a.id];
+    });
     const row=document.createElement('div');
     row.className='assist-row'+(state.assistance[a.id]?' done':'')+(isRec?' recommended':'');
     row.innerHTML='<div class="checkbox">'+(state.assistance[a.id]?'<span class="checkmark">\u2713</span>':'')+'</div>'
       +'<div class="assist-meta"><div class="assist-name">'+a.name+(isRec?'<span class="rec-tag">Heute</span>':'')+'</div>'
       +'<div class="assist-block">Block '+a.block+' \xb7 '+a.target+'</div>'
-      +(bestA>0?'<div class="assist-best met">Bestzeit: '+bestA+'s</div>':'')
+      +(bestA>0?'<div class="assist-best met">Bestzeit: '+bestA+(a.isReps?' Wdh':'s')+(lastW!==null&&lastW>0?' · '+lastW+'kg':'')+'</div>':'')
       +'</div><button class="info-btn" data-aid="'+a.id+'">?</button>';
     row.querySelector('.info-btn').addEventListener('click',e=>{e.stopPropagation();openAssistModal(a.id);});
     row.onclick=()=>{state.assistance[a.id]=!state.assistance[a.id];save();render();};
@@ -734,7 +745,7 @@ function renderHistory(){
 let wkState={exercises:[],stepIdx:0,results:{},congratsShown:false};
 
 // Assistance-Übungen die bilateral sind (keine Seiten-Trennung)
-const BILATERAL_ASSIST=['b1','b3','d1','d2'];
+const BILATERAL_ASSIST=['a2','a3','b1','b3','c2','d1','d2'];
 
 function buildWorkoutExercises(){
   const stage=getStage();
@@ -843,8 +854,46 @@ function renderWorkoutStep(){
   const isFlag=ex.type==='flag';
   const ref=ex.ref;
   const target=ref.targetHold||(isFlag?stage.targetHold:10);
-  const unit=ref.isReps?'r':'s';
+  const unit=ref.isReps?'Wdh':'s';
   const totalSets=ex.totalSets||3;
+
+  // Bestzeit-Anzeige (oberhalb Timer)
+  const bestInfo=document.getElementById('wBestInfo');
+  let bestVal=0,lastWeight=null;
+  if(isFlag){
+    state.sessions.filter(s=>s.stage===state.currentStage).forEach(s=>{
+      (s.leftSets||[]).forEach(v=>{if(v>bestVal)bestVal=v;});
+      (s.rightSets||[]).forEach(v=>{if(v>bestVal)bestVal=v;});
+    });
+  }else{
+    state.sessions.forEach(s=>{
+      if(s.assistBests&&s.assistBests[ref.id]&&s.assistBests[ref.id]>bestVal)bestVal=s.assistBests[ref.id];
+      if(s.assistWeights&&s.assistWeights[ref.id]!==undefined)lastWeight=s.assistWeights[ref.id];
+    });
+  }
+  if(bestVal>0){
+    const met=bestVal>=target;
+    bestInfo.style.display='block';
+    bestInfo.style.background=met?'var(--green-dim)':'var(--surface2)';
+    bestInfo.style.color=met?'var(--green)':'var(--muted)';
+    bestInfo.style.border='1px solid '+(met?'var(--green)':'var(--border)');
+    let txt='Bestzeit: '+bestVal+unit+' · Ziel: '+target+unit;
+    if(lastWeight!==null&&lastWeight>0)txt+=' · zuletzt '+lastWeight+'kg';
+    bestInfo.textContent=txt;
+  }else{
+    bestInfo.style.display='none';
+  }
+
+  // Gewicht-Input
+  const wWrap=document.getElementById('wWeightWrap');
+  const wInp=document.getElementById('weightInput');
+  if(!isFlag&&ref.hasWeight){
+    wWrap.style.display='block';
+    document.getElementById('weightUnit').textContent=ref.weightUnit||'kg';
+    wInp.value=lastWeight!==null?lastWeight:(ref.weightDefault||'');
+  }else{
+    wWrap.style.display='none';
+  }
 
   // count how many non-rest steps we've done for this exercise+side combo
   document.getElementById('workoutPhaseLabel').textContent='Schritt '+(idx+1)+' / '+exs.length;
@@ -867,7 +916,7 @@ function renderWorkoutStep(){
   // target line: show if this is L or R within a set
   const sideLabel=ex.side==='left'?' · Links':ex.side==='right'?' · Rechts':'';
   document.getElementById('wTarget').textContent='Set '+(ex.setIdx+1)+'/'+totalSets+sideLabel+' · Ziel: '+target+unit;
-  document.getElementById('holdUnit').textContent=unit;
+  document.getElementById('holdUnit').textContent=ref.isReps?'Wdh':'s';
 
   // set-progress dots: show per-set progress (one dot per full set = both sides done)
   const prog=document.getElementById('setProgress');prog.innerHTML='';
@@ -881,7 +930,7 @@ function renderWorkoutStep(){
   circ.setAttribute('stroke-dasharray','376');circ.setAttribute('stroke-dashoffset','376');
   circ.className='timer-fill';
   document.getElementById('timerValue').textContent='—';
-  document.getElementById('timerSub').textContent=unit==='s'?'Sekunden eingeben':'Reps eingeben';
+  document.getElementById('timerSub').textContent=unit==='s'?'Sekunden eingeben':'Wiederholungen eingeben';
 
   const inp=document.getElementById('holdInput');
   inp.value='';inp.focus();
@@ -891,7 +940,7 @@ function renderWorkoutStep(){
     circ.setAttribute('stroke-dashoffset',376-(376*pct));
     document.getElementById('timerValue').textContent=v;
     circ.className='timer-fill'+(v>=target?' done':'');
-    document.getElementById('timerSub').textContent=v>=target?'✓ Ziel erreicht!':unit==='s'?'Sekunden':'Reps';
+    document.getElementById('timerSub').textContent=v>=target?'✓ Ziel erreicht!':unit==='s'?'Sekunden':'Wdh';
   };
 
   document.getElementById('wTipText').textContent=isFlag?(ref.tip||stage.tip):(ref.technique||'');
@@ -914,6 +963,13 @@ function saveStepResult(ex, v){
   }else if(ex.type==='assist'){
     if(!wkState.results.assist[ex.ref.id])wkState.results.assist[ex.ref.id]=[];
     wkState.results.assist[ex.ref.id].push(v);
+    // Gewicht speichern
+    if(ex.ref.hasWeight){
+      const wInp=document.getElementById('weightInput');
+      const w=parseFloat(wInp.value)||0;
+      if(!wkState.results.weights)wkState.results.weights={};
+      wkState.results.weights[ex.ref.id]=w;
+    }
   }
 }
 
@@ -951,6 +1007,9 @@ function finishWorkout(){
     Object.entries(wkState.results.assist||{}).forEach(([id,vals])=>{
       entry.assistBests[id]=Math.max(...vals);
     });
+    if(wkState.results.weights){
+      entry.assistWeights=wkState.results.weights;
+    }
     state.sessions.unshift(entry);
     state.sessions=state.sessions.slice(0,100);
     state.sessionCount=(state.sessionCount||0)+1;
