@@ -186,7 +186,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 <div class="tracker-screen" id="trackerScreen">
   <div class="fadeUp d0">
     <h1 class="headline">Human <span class="accent">Flag</span></h1>
-    <div class="sub">17 Stufen · Evidenzbasiertes Coaching</div>
+    <div class="sub">17 Stufen · Evidenzbasiertes Coaching · v2.2</div>
   </div>
   <div id="alertsContainer"></div>
   <div class="card fadeUp d1">
@@ -779,15 +779,23 @@ function buildWorkoutExercises(){
 function playBeep(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [0,150,300].forEach(delay=>{
+    // 9 Beeps: 3 Gruppen à 3, innerhalb Gruppe 120ms Abstand, zwischen Gruppen 250ms Abstand
+    // Gesamtdauer: ~1.2s
+    const times=[];
+    for(let g=0;g<3;g++){
+      for(let b=0;b<3;b++){
+        times.push(g*370+b*120); // ms
+      }
+    }
+    times.forEach(ms=>{
       const osc=ctx.createOscillator();
       const gain=ctx.createGain();
       osc.connect(gain);gain.connect(ctx.destination);
       osc.frequency.value=880;osc.type='sine';
-      gain.gain.setValueAtTime(0.4,ctx.currentTime+delay/1000);
-      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay/1000+0.2);
-      osc.start(ctx.currentTime+delay/1000);
-      osc.stop(ctx.currentTime+delay/1000+0.25);
+      const t=ctx.currentTime+ms/1000;
+      gain.gain.setValueAtTime(0.4,t);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.09);
+      osc.start(t);osc.stop(t+0.1);
     });
   }catch(e){}
 }
@@ -820,13 +828,20 @@ function renderWorkoutStep(){
 
   // REST STEP
   if(ex.type==='rest'){
+    // Nächste Übung ermitteln
+    const nextEx=exs[idx+1];
+    let nextLabel='';
+    if(nextEx&&nextEx.type!=='rest'){
+      const nSide=nextEx.side&&nextEx.side!=='both'?(nextEx.side==='left'?' · Links':' · Rechts'):'';
+      nextLabel=(nextEx.ref.name||'')+(nextEx.setIdx!==undefined?' · Set '+(nextEx.setIdx+1)+'/'+nextEx.totalSets:'')+nSide;
+    }
     document.getElementById('workoutPhaseLabel').textContent='Pause';
     document.getElementById('workoutProgressLabel').textContent='Erholen';
-    document.getElementById('wPhase').textContent='Pause';
-    document.getElementById('wExercise').textContent=ex.label||'Pause';
+    document.getElementById('wPhase').textContent=nextLabel?'Als nächstes':'Pause';
+    document.getElementById('wExercise').textContent=nextLabel||ex.label||'Pause';
     document.getElementById('wTarget').textContent='Atmen, lockern, trinken';
     document.getElementById('wSideIndicator').style.display='none';
-    document.getElementById('wTipText').textContent='2-3 Minuten Pause zwischen Flag-Sets sind optimal (Eric Flag, FitnessFAQs). Schultern ausschütteln, Ellbogen kontrollieren.';
+    document.getElementById('wTipText').textContent='2-3 Minuten Pause zwischen Flag-Sets sind optimal. Schultern ausschütteln, Ellbogen kontrollieren.';
     document.getElementById('holdInput').value='';
     document.getElementById('holdUnit').textContent='s';
     document.getElementById('setProgress').innerHTML='';
@@ -904,9 +919,7 @@ function renderWorkoutStep(){
   // side indicator
   const sideEl=document.getElementById('wSideIndicator');
   if(ex.side==='both'){
-    sideEl.style.display='block';
-    sideEl.className='side-indicator left';
-    sideEl.textContent='Beide Seiten';
+    sideEl.style.display='none';
   }else{
     sideEl.style.display='block';
     sideEl.className='side-indicator '+(ex.side==='left'?'left':'right');
