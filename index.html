@@ -176,6 +176,22 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .export-row .btn{width:auto;flex:1;}
 .reset-btn{background:none;border:none;color:var(--muted);font-size:.7rem;cursor:pointer;text-decoration:underline;margin-top:.8rem;padding:.3rem;display:block;width:100%;}
 .collapsed-body{display:none;}
+#workoutScreen .card.work-set{border-color:var(--orange);box-shadow:0 1px 6px var(--orange-glow);}
+#workoutScreen .card.work-set .card-header{background:var(--orange-dim);}
+#workoutScreen .card.work-set .card-label{color:var(--orange);}
+#workoutScreen .card.rest-set{background:var(--surface2);}
+#workoutScreen .card.rest-set .card-header{background:var(--border);}
+.stopwatch-wrap{display:flex;gap:.5rem;margin-bottom:.8rem;}
+.stopwatch-btn{flex:1;padding:.7rem;border:1px solid var(--orange);background:var(--orange-dim);color:var(--orange);border-radius:10px;font-family:var(--mono);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.1em;}
+.stopwatch-btn:hover{background:var(--orange);color:#fff;}
+.stopwatch-btn.stop{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+.stopwatch-btn.stop:hover{background:var(--red);color:#fff;}
+.workout-end-card{text-align:center;padding:2rem 1.5rem;}
+.workout-end-icon{font-size:4rem;margin-bottom:1rem;}
+.workout-end-title{font-family:var(--sans);font-weight:800;font-size:1.6rem;margin-bottom:.5rem;}
+.workout-end-stats{display:flex;justify-content:center;gap:1.5rem;margin:1.2rem 0;flex-wrap:wrap;}
+.workout-end-stat .v{font-family:var(--mono);font-weight:700;font-size:1.4rem;color:var(--orange);}
+.workout-end-stat .l{font-family:var(--mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);}
 @media(max-width:440px){body{padding:1rem .7rem 2rem;}.card-body{padding:1rem 1rem;}.set-input{font-size:.95rem;width:1.8rem;}.stage-name{font-size:1.25rem;}}
 </style>
 </head>
@@ -186,7 +202,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 <div class="tracker-screen" id="trackerScreen">
   <div class="fadeUp d0">
     <h1 class="headline">Human <span class="accent">Flag</span></h1>
-    <div class="sub">17 Stufen · Evidenzbasiertes Coaching · v2.2</div>
+    <div class="sub">17 Stufen · Evidenzbasiertes Coaching · v2.4</div>
   </div>
   <div id="alertsContainer"></div>
   <div class="card fadeUp d1">
@@ -302,6 +318,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
           <input type="number" class="hold-input" id="weightInput" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0" style="font-size:1.3rem;width:3rem">
           <span class="hold-unit" id="weightUnit" style="font-size:.9rem">kg</span>
         </div>
+      </div>
+      <div id="wStopwatchWrap" class="stopwatch-wrap" style="display:none">
+        <button class="stopwatch-btn" id="swStartBtn">&#9654; Start</button>
+        <button class="stopwatch-btn stop" id="swStopBtn" style="display:none">&#9632; Stopp &amp; Übernehmen</button>
       </div>
       <div class="timer-ring">
         <svg viewBox="0 0 140 140" width="140" height="140">
@@ -744,47 +764,163 @@ function renderHistory(){
 // WORKOUT
 let wkState={exercises:[],stepIdx:0,results:{},congratsShown:false};
 
-// Assistance-Übungen die bilateral sind (keine Seiten-Trennung)
 const BILATERAL_ASSIST=['a2','a3','b1','b3','c2','d1','d2'];
+
+function getWeakerSide(){
+  const stageSess=state.sessions.filter(s=>s.stage===state.currentStage).slice(0,5);
+  if(stageSess.length<2)return null;
+  let lT=0,rT=0,cnt=0;
+  stageSess.forEach(s=>{
+    if(s.leftTotal!==undefined&&s.rightTotal!==undefined){
+      lT+=s.leftTotal;rT+=s.rightTotal;cnt++;
+    }
+  });
+  if(cnt<2||lT===0||rT===0)return null;
+  const max=Math.max(lT,rT),min=Math.min(lT,rT);
+  if(((max-min)/max)*100<=20)return null;
+  return lT<rT?'left':'right';
+}
 
 function buildWorkoutExercises(){
   const stage=getStage();
   const rot=getTodayRotation();
   const assists=rot.map(id=>ASSISTANCE.find(a=>a.id===id)).filter(Boolean);
   const exs=[];
-  // flag: alternating L/R within each set-round
-  // Structure: Round 1 (L+R), Rest, Round 2 (L+R), Rest, Round 3 (L+R)
+  const weakSide=getWeakerSide();
+  const firstSide=weakSide||'left';
+  const secondSide=firstSide==='left'?'right':'left';
+
   for(let set=0;set<stage.targetSets;set++){
-    if(set>0) exs.push({type:'rest',duration:120,label:'Pause (2 Min)'});
-    exs.push({type:'flag',ref:stage,setIdx:set,side:'left',totalSets:stage.targetSets});
-    exs.push({type:'flag',ref:stage,setIdx:set,side:'right',totalSets:stage.targetSets});
+    if(set>0)exs.push({type:'rest',duration:120,label:'Pause'});
+    exs.push({type:'flag',ref:stage,setIdx:set,side:firstSide,totalSets:stage.targetSets,isWeakSide:weakSide===firstSide});
+    exs.push({type:'flag',ref:stage,setIdx:set,side:secondSide,totalSets:stage.targetSets});
   }
-  // assistance
+  if(weakSide){
+    exs.push({type:'rest',duration:120,label:'Pause'});
+    exs.push({type:'flag',ref:stage,setIdx:stage.targetSets,side:firstSide,totalSets:stage.targetSets+1,isExtraSet:true,isWeakSide:true});
+  }
+
   assists.forEach(a=>{
     const bilateral=BILATERAL_ASSIST.includes(a.id);
-    exs.push({type:'rest',duration:90,label:'Pause (90s)'});
+    exs.push({type:'rest',duration:90,label:'Pause'});
     for(let set=0;set<3;set++){
-      if(set>0) exs.push({type:'rest',duration:60,label:'Pause (60s)'});
+      if(set>0)exs.push({type:'rest',duration:60,label:'Pause'});
       if(bilateral){
         exs.push({type:'assist',ref:a,setIdx:set,side:'both',totalSets:3});
       }else{
-        exs.push({type:'assist',ref:a,setIdx:set,side:'left',totalSets:3});
-        exs.push({type:'assist',ref:a,setIdx:set,side:'right',totalSets:3});
+        exs.push({type:'assist',ref:a,setIdx:set,side:firstSide,totalSets:3,isWeakSide:weakSide===firstSide});
+        exs.push({type:'assist',ref:a,setIdx:set,side:secondSide,totalSets:3});
       }
     }
+    if(!bilateral&&weakSide){
+      exs.push({type:'rest',duration:60,label:'Pause'});
+      exs.push({type:'assist',ref:a,setIdx:3,side:firstSide,totalSets:4,isExtraSet:true,isWeakSide:true});
+    }
   });
+
+  exs.push({type:'end'});
   return exs;
+}
+
+let swState={running:false,startTime:0,interval:null,lastMinuteBeep:0};
+
+function startStopwatch(){
+  swState.running=true;
+  swState.startTime=Date.now();
+  swState.lastMinuteBeep=0;
+  document.getElementById('swStartBtn').style.display='none';
+  document.getElementById('swStopBtn').style.display='block';
+  swState.interval=setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-swState.startTime)/1000);
+    document.getElementById('timerValue').textContent=elapsed;
+    const inp=document.getElementById('holdInput');
+    if(inp){inp.value=elapsed;inp.dispatchEvent(new Event('input'));}
+    const mins=Math.floor(elapsed/60);
+    if(mins>swState.lastMinuteBeep&&mins>0){
+      swState.lastMinuteBeep=mins;
+      playShortBeep();
+    }
+  },200);
+}
+
+function stopStopwatch(){
+  if(swState.interval){clearInterval(swState.interval);swState.interval=null;}
+  swState.running=false;
+  document.getElementById('swStartBtn').style.display='block';
+  document.getElementById('swStopBtn').style.display='none';
+  confirmWorkoutStep();
+}
+
+function resetStopwatch(){
+  if(swState.interval){clearInterval(swState.interval);swState.interval=null;}
+  swState.running=false;
+  swState.startTime=0;
+  swState.lastMinuteBeep=0;
+  const sb=document.getElementById('swStartBtn');
+  const xb=document.getElementById('swStopBtn');
+  if(sb)sb.style.display='block';
+  if(xb)xb.style.display='none';
+}
+
+function playShortBeep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.frequency.value=660;osc.type='sine';
+    const t=ctx.currentTime;
+    gain.gain.setValueAtTime(0.4,t);
+    gain.gain.setValueAtTime(0.4,t+0.13);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.18);
+    osc.start(t);osc.stop(t+0.2);
+  }catch(e){}
+}
+
+function playWorkoutEndFanfare(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=[523,659,784,1047];
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq;osc.type='sine';
+      const t=ctx.currentTime+i*0.18;
+      gain.gain.setValueAtTime(0.5,t);
+      gain.gain.setValueAtTime(0.5,t+0.25);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+      osc.start(t);osc.stop(t+0.4);
+    });
+  }catch(e){}
+}
+
+function showWorkoutEnd(){
+  playWorkoutEndFanfare();
+  const lT=(wkState.results.flag.left||[]).reduce((a,b)=>a+b,0);
+  const rT=(wkState.results.flag.right||[]).reduce((a,b)=>a+b,0);
+  const totalFlagSets=(wkState.results.flag.left||[]).length+(wkState.results.flag.right||[]).length;
+  const totalAssist=Object.values(wkState.results.assist||{}).reduce((a,v)=>a+v.length,0);
+  const wcE=document.querySelector('#workoutScreen .card');
+  if(wcE){wcE.classList.remove('work-set','rest-set');}
+  document.getElementById('workoutPhaseLabel').textContent='Geschafft';
+  document.getElementById('workoutProgressLabel').textContent='Fertig';
+  const cardBody=document.querySelector('#workoutScreen .card .card-body');
+  cardBody.innerHTML='<div class="workout-end-card"><div class="workout-end-icon">&#127942;</div><div class="workout-end-title">Workout beendet!</div><div style="color:var(--muted);font-size:.9rem;margin-bottom:.5rem">Stark durchgezogen.</div><div class="workout-end-stats"><div class="workout-end-stat"><div class="v">'+(lT+rT)+'s</div><div class="l">Gesamt Flag</div></div><div class="workout-end-stat"><div class="v">'+totalFlagSets+'</div><div class="l">Flag-Sets</div></div><div class="workout-end-stat"><div class="v">'+totalAssist+'</div><div class="l">Assist-Sets</div></div></div><button class="btn primary" id="endFinishBtn">Speichern &amp; zurück</button></div>';
+  document.getElementById('endFinishBtn').onclick=()=>finishWorkout();
+  document.getElementById('wTipCard').style.display='none';
 }
 
 function playBeep(){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    // 9 Beeps: 3 Gruppen à 3, innerhalb Gruppe 120ms Abstand, zwischen Gruppen 250ms Abstand
-    // Gesamtdauer: ~1.2s
+    // 9 Beeps: 3 Gruppen à 3, jeder Beep ~180ms, kurze Pausen
+    // Innerhalb Gruppe: 220ms Abstand. Zwischen Gruppen: 350ms Abstand.
+    const beepLen=0.18;
     const times=[];
     for(let g=0;g<3;g++){
       for(let b=0;b<3;b++){
-        times.push(g*370+b*120); // ms
+        times.push(g*710+b*220); // ms
       }
     }
     times.forEach(ms=>{
@@ -793,11 +929,31 @@ function playBeep(){
       osc.connect(gain);gain.connect(ctx.destination);
       osc.frequency.value=880;osc.type='sine';
       const t=ctx.currentTime+ms/1000;
-      gain.gain.setValueAtTime(0.4,t);
-      gain.gain.exponentialRampToValueAtTime(0.001,t+0.09);
-      osc.start(t);osc.stop(t+0.1);
+      gain.gain.setValueAtTime(0.5,t);
+      gain.gain.setValueAtTime(0.5,t+beepLen-0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+beepLen);
+      osc.start(t);osc.stop(t+beepLen+0.02);
     });
   }catch(e){}
+}
+
+function rebuildWorkoutCardBody(){
+  if(document.getElementById('holdInput'))return; // schon ok
+  const cb=document.querySelector('#workoutScreen .card .card-body');
+  if(!cb)return;
+  cb.innerHTML='<div class="workout-header"><div class="workout-phase" id="wPhase"></div><div class="workout-exercise" id="wExercise"></div><div class="workout-target" id="wTarget"></div></div>'
+    +'<div id="wSideIndicator" class="side-indicator left" style="display:none">Links</div>'
+    +'<div id="wBestInfo" style="display:none;text-align:center;font-family:var(--mono);font-size:.72rem;font-weight:700;margin-bottom:.8rem;padding:.5rem;border-radius:8px;"></div>'
+    +'<div id="wWeightWrap" style="display:none;margin-bottom:.8rem"><div style="font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);text-align:center;margin-bottom:.3rem">Gewicht</div><div class="hold-input-wrap" style="padding:.5rem"><input type="number" class="hold-input" id="weightInput" min="0" max="200" step="0.5" inputmode="decimal" placeholder="0" style="font-size:1.3rem;width:3rem"><span class="hold-unit" id="weightUnit" style="font-size:.9rem">kg</span></div></div>'
+    +'<div id="wStopwatchWrap" class="stopwatch-wrap" style="display:none"><button class="stopwatch-btn" id="swStartBtn">&#9654; Start</button><button class="stopwatch-btn stop" id="swStopBtn" style="display:none">&#9632; Stopp &amp; Übernehmen</button></div>'
+    +'<div class="timer-ring"><svg viewBox="0 0 140 140" width="140" height="140"><circle class="timer-bg" cx="70" cy="70" r="60"/><circle class="timer-fill" id="timerCircle" cx="70" cy="70" r="60"/></svg><div class="timer-inner"><span class="timer-value" id="timerValue">—</span><span class="timer-sub" id="timerSub">eingeben</span></div></div>'
+    +'<div class="hold-input-wrap"><input type="number" class="hold-input" id="holdInput" min="0" max="99" inputmode="numeric" placeholder="0"><span class="hold-unit" id="holdUnit">s</span></div>'
+    +'<div class="set-progress" id="setProgress"></div>'
+    +'<div class="workout-btn-row"><button class="btn small" id="wPrevBtn">← Zurück</button><button class="btn primary" id="wNextBtn">Bestätigen →</button></div>';
+  document.getElementById('wNextBtn').onclick=confirmWorkoutStep;
+  document.getElementById('wPrevBtn').onclick=()=>{if(wkState.stepIdx>0){wkState.stepIdx--;renderWorkoutStep();}};
+  document.getElementById('swStartBtn').onclick=startStopwatch;
+  document.getElementById('swStopBtn').onclick=stopStopwatch;
 }
 
 function startWorkout(){
@@ -805,6 +961,8 @@ function startWorkout(){
   wkState.stepIdx=0;
   wkState.results={flag:{left:[],right:[]},assist:{}};
   wkState.congratsShown=false;
+  document.getElementById('wTipCard').style.display='';
+  rebuildWorkoutCardBody();
   document.getElementById('trackerScreen').style.display='none';
   document.getElementById('workoutScreen').classList.add('active');
   renderWorkoutStep();
@@ -825,6 +983,9 @@ function renderWorkoutStep(){
   if(idx>=exs.length){finishWorkout();return;}
   const ex=exs[idx];
   if(restTimer){clearInterval(restTimer);restTimer=null;}
+  resetStopwatch();
+
+  if(ex.type==='end'){showWorkoutEnd();return;}
 
   // REST STEP
   if(ex.type==='rest'){
@@ -835,15 +996,22 @@ function renderWorkoutStep(){
       const nSide=nextEx.side&&nextEx.side!=='both'?(nextEx.side==='left'?' · Links':' · Rechts'):'';
       nextLabel=(nextEx.ref.name||'')+(nextEx.setIdx!==undefined?' · Set '+(nextEx.setIdx+1)+'/'+nextEx.totalSets:'')+nSide;
     }
+    const wc=document.querySelector('#workoutScreen .card');
+    if(wc){wc.classList.add('rest-set');wc.classList.remove('work-set');}
     document.getElementById('workoutPhaseLabel').textContent='Pause';
     document.getElementById('workoutProgressLabel').textContent='Erholen';
-    document.getElementById('wPhase').textContent=nextLabel?'Als nächstes':'Pause';
-    document.getElementById('wExercise').textContent=nextLabel||ex.label||'Pause';
-    document.getElementById('wTarget').textContent='Atmen, lockern, trinken';
+    document.getElementById('wPhase').textContent='Pause';
+    document.getElementById('wExercise').textContent='Pause';
+    document.getElementById('wTarget').textContent=nextLabel?'Als nächstes: '+nextLabel:'Atmen, lockern, trinken';
     document.getElementById('wSideIndicator').style.display='none';
     document.getElementById('wTipText').textContent='2-3 Minuten Pause zwischen Flag-Sets sind optimal. Schultern ausschütteln, Ellbogen kontrollieren.';
+    // Eingabefeld + Bestzeit + Gewicht ausblenden
     document.getElementById('holdInput').value='';
-    document.getElementById('holdUnit').textContent='s';
+    document.querySelector('.hold-input-wrap').style.display='none';
+    document.getElementById('wBestInfo').style.display='none';
+    document.getElementById('wWeightWrap').style.display='none';
+    const swW=document.getElementById('wStopwatchWrap');
+    if(swW)swW.style.display='none';
     document.getElementById('setProgress').innerHTML='';
     const circ=document.getElementById('timerCircle');
     let rem=ex.duration;
@@ -865,12 +1033,17 @@ function renderWorkoutStep(){
   }
 
   document.getElementById('wNextBtn').textContent='Bestätigen →';
+  document.querySelector('.hold-input-wrap').style.display='';
+  const wc2=document.querySelector('#workoutScreen .card');
+  if(wc2){wc2.classList.add('work-set');wc2.classList.remove('rest-set');}
   const stage=getStage();
   const isFlag=ex.type==='flag';
   const ref=ex.ref;
   const target=ref.targetHold||(isFlag?stage.targetHold:10);
   const unit=ref.isReps?'Wdh':'s';
   const totalSets=ex.totalSets||3;
+  const swW2=document.getElementById('wStopwatchWrap');
+  if(swW2)swW2.style.display=ref.isReps?'none':'flex';
 
   // Bestzeit-Anzeige (oberhalb Timer)
   const bestInfo=document.getElementById('wBestInfo');
@@ -923,7 +1096,10 @@ function renderWorkoutStep(){
   }else{
     sideEl.style.display='block';
     sideEl.className='side-indicator '+(ex.side==='left'?'left':'right');
-    sideEl.textContent=ex.side==='left'?'← Links':'Rechts →';
+    let st=ex.side==='left'?'← Links':'Rechts →';
+    if(ex.isWeakSide)st+=' · Schwache Seite';
+    if(ex.isExtraSet)st+=' (Extra)';
+    sideEl.textContent=st;
   }
 
   // target line: show if this is L or R within a set
@@ -1077,6 +1253,8 @@ document.getElementById('startWorkoutBtn').onclick=startWorkout;
 document.getElementById('exitWorkoutBtn').onclick=exitWorkout;
 document.getElementById('wNextBtn').onclick=confirmWorkoutStep;
 document.getElementById('wPrevBtn').onclick=()=>{if(wkState.stepIdx>0){wkState.stepIdx--;renderWorkoutStep();}};
+document.getElementById('swStartBtn').onclick=startStopwatch;
+document.getElementById('swStopBtn').onclick=stopStopwatch;
 [document.getElementById('prevBtn'),document.getElementById('prevStageBtn')].forEach(b=>{
   b.onclick=()=>{if(state.currentStage>1){state.currentStage--;state.todaySets={left:[0,0,0,0,0],right:[0,0,0,0,0]};save();render();}};
 });
