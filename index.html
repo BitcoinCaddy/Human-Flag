@@ -202,7 +202,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 <div class="tracker-screen" id="trackerScreen">
   <div class="fadeUp d0">
     <h1 class="headline">Human <span class="accent">Flag</span></h1>
-    <div class="sub">17 Stufen · Evidenzbasiertes Coaching · v2.4</div>
+    <div class="sub">17 Stufen · Evidenzbasiertes Coaching · v2.5</div>
   </div>
   <div id="alertsContainer"></div>
   <div class="card fadeUp d1">
@@ -830,11 +830,19 @@ function startStopwatch(){
   swState.lastMinuteBeep=0;
   document.getElementById('swStartBtn').style.display='none';
   document.getElementById('swStopBtn').style.display='block';
+  // Eingabefeld NICHT live überschreiben — nur Timer-Ring updaten
   swState.interval=setInterval(()=>{
     const elapsed=Math.floor((Date.now()-swState.startTime)/1000);
     document.getElementById('timerValue').textContent=elapsed;
+    document.getElementById('timerSub').textContent='läuft...';
+    // Ring visuell füllen anhand des Ziels
     const inp=document.getElementById('holdInput');
-    if(inp){inp.value=elapsed;inp.dispatchEvent(new Event('input'));}
+    const target=parseInt(inp.dataset.target)||10;
+    const circ=document.getElementById('timerCircle');
+    const pct=Math.min(1,elapsed/target);
+    circ.setAttribute('stroke-dashoffset',376-(376*pct));
+    circ.className='timer-fill'+(elapsed>=target?' done':'');
+    // Minuten-Beep
     const mins=Math.floor(elapsed/60);
     if(mins>swState.lastMinuteBeep&&mins>0){
       swState.lastMinuteBeep=mins;
@@ -848,6 +856,11 @@ function stopStopwatch(){
   swState.running=false;
   document.getElementById('swStartBtn').style.display='block';
   document.getElementById('swStopBtn').style.display='none';
+  // Erst beim Stopp: Stoppuhr-Zeit ins Eingabefeld schreiben
+  const elapsed=Math.floor((Date.now()-swState.startTime)/1000);
+  const inp=document.getElementById('holdInput');
+  inp.value=elapsed;
+  inp.dispatchEvent(new Event('input'));
   confirmWorkoutStep();
 }
 
@@ -1122,7 +1135,9 @@ function renderWorkoutStep(){
   document.getElementById('timerSub').textContent=unit==='s'?'Sekunden eingeben':'Wiederholungen eingeben';
 
   const inp=document.getElementById('holdInput');
-  inp.value='';inp.focus();
+  inp.value='';
+  inp.dataset.target=target;
+  inp.focus();
   inp.oninput=()=>{
     const v=parseInt(inp.value)||0;
     const pct=Math.min(1,v/target);
